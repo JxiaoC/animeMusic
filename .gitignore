@@ -1,0 +1,6 @@
+*.idea
+*.pyc
+temp
+__test__
+certificate
+*/aliyun/setting.py

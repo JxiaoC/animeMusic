@@ -1,0 +1,232 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>demo</title>
+    <link rel="stylesheet" href="anime_music_icon.css"/>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .bg {
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            background-position: center center;
+        }
+
+        .bg img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            min-width: 100%;
+            min-height: 100%;
+            transition: opacity 1s;
+            -moz-transition: opacity 1s;
+            -webkit-transition: opacity 1s;
+            -o-transition: opacity 1s;
+            opacity: 0;
+        }
+
+        .bg img.show {
+            opacity: 1;
+        }
+
+        .mask {
+            position: fixed;
+            height: 100%;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .player {
+            font-family: 微软雅黑;
+            width: 300px;
+            height: 154px;
+            background-color: rgba(0, 0, 0, 0.3);
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            background-size: 100% 100%;
+            background-position: center center;
+            overflow: hidden;
+        }
+
+        .player .logo {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .player .logo img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: margin-top 1s;
+            -moz-transition: margin-top 1s;
+            -webkit-transition: margin-top 1s;
+            -o-transition: margin-top 1s;
+            margin-top: 100%;
+            display: block;
+        }
+
+        .player .logo img.show {
+            margin-top: 0px;
+        }
+
+        .player .control {
+            position: absolute;
+            top: 38%;
+            left: 10px;
+            font-size: 55px;
+            color: #fff;
+            text-shadow: 0px 0px 1px rgb(0, 0, 0);
+        }
+		
+		.player .control:hover{
+			text-shadow: 0px 0px 5px rgb(0, 0, 0);
+		}
+
+        .player .next {
+            position: absolute;
+            top: 55%;
+            left: 65px;
+            font-size: 35px;
+            color: #fff;
+            text-shadow: 0px 0px 1px rgb(0, 0, 0);
+        }
+
+		.player .next:hover{
+			text-shadow: 0px 0px 5px rgb(0, 0, 0);
+		}
+
+        .player .name {
+            position: absolute;
+            bottom: 12px;
+            left: 5px;
+            text-shadow: 0px 0px 2px rgb(0, 0, 0);
+            white-space: nowrap;
+            color: #fff;
+            cursor: default;
+        }
+
+        .player .progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(80, 168, 255, 0.6);
+            height: 7px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .player .progress .now {
+            transition: width 0.3s;
+            -moz-transition: width 0.3s;
+            -webkit-transition: width 0.3s;
+            -o-transition: width 0.3s;
+            background-color: rgba(255, 255, 255, 0.8);
+            height: 7px;
+            width: 0px;
+        }
+
+        .player .time {
+            color: #fff;
+            font-size: 28px;
+            position: absolute;
+            top: 50%;
+            text-shadow: 0px 0px 2px rgb(0, 0, 0);
+            cursor: default;
+            right: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="mask"></div>
+<div class="player">
+    <div class="logo"></div>
+    <div class="control iconfont icon-play"></div>
+    <div class="next iconfont icon-next"></div>
+    <div class="time">00:00/00:00</div>
+    <div class="progress">
+        <div class="now"></div>
+    </div>
+    <div class="name"></div>
+</div>
+</body>
+<script type="text/javascript" src="anime-music.js?v=201808301"></script>
+<script>
+    animeMusic.onProgress = function (per, now, all) {
+		//监听播放进度事件,返回的依次为播放百分比（Number）， 当前播放时间（MM:SS），总长度（MM:SS）
+        document.querySelector('.player .progress .now').style.width = per + '%';
+        document.querySelector('.player .time').innerText = now + '/' + all;
+    };
+
+    animeMusic.onLoaded = function (res) {
+	    //数据请求完毕，res为请求结果
+        console.log(res);
+
+        history.pushState(null, document.title, '?id=' + res.id);
+        document.querySelector('.player .name').innerText = res.title + ' - ' + res.anime_info.title;
+
+        var bg = document.createElement("img");
+        bg.src = res.anime_info.bg;
+        bg.onload = function () {
+            if (document.querySelectorAll('.bg img').length > 1) {
+                document.querySelectorAll('.bg img')[0].className = "";
+                setTimeout(function () {
+                    document.querySelectorAll('.bg img')[0].remove();
+                }, 1100);
+            }
+            this.className = "show";
+        };
+        document.querySelector('.bg').append(bg);
+
+        var logo = document.createElement("img");
+        logo.src = res.anime_info.logo;
+        logo.onload = function () {
+            if (document.querySelectorAll('.player .logo img').length > 1) {
+                document.querySelectorAll('.player .logo img')[0].className = "";
+                setTimeout(function () {
+                    document.querySelectorAll('.player .logo img')[0].remove();
+                }, 1100);
+            }
+            this.className = "show";
+        };
+        document.querySelector('.player .logo').append(logo);
+    };
+
+    animeMusic.onPlay = function () {
+		//监听播放开始事件, 切换按钮状态和点击事件
+        document.querySelector('.player .control').className = 'control iconfont icon-pause';
+        document.querySelector('.player .control').onclick = function () {
+            animeMusic.Pause();
+        };
+    };
+	
+	animeMusic.onLoad = animeMusic.onPlay;
+
+    animeMusic.onPause = function () {
+		//监听播放开始事件, 切换按钮状态和点击事件
+        document.querySelector('.player .control').className = 'control iconfont icon-play';
+        document.querySelector('.player .control').onclick = function () {
+            animeMusic.Play();
+        };
+    };
+
+    document.querySelector('.player .next').onclick = function () {
+		//给下一曲按钮绑定点击事件
+        animeMusic.Next();
+    };
+
+    animeMusic.bindPlayTo('.player .progress'); //绑定鼠标点击进度条时的处理事件
+
+    document.querySelector('.player .control').onclick = function () {
+		//给播放按钮赋予初始事件, 第一次加载音乐使用Next
+        animeMusic.Next();
+    };
+</script>
+</html>

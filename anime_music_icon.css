@@ -1,0 +1,23 @@
+
+@font-face {font-family: "iconfont";
+  src: url('anime_music_icon.eot?t=1535597309299'); /* IE9*/
+  src: url('anime_music_icon.eot?t=1535597309299#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('data:application/x-font-woff;charset=utf-8;base64,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') format('woff'),
+  url('anime_music_icon.ttf?t=1535597309299') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+*/
+  url('anime_music_icon.svg?t=1535597309299#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+.iconfont {
+  font-family:"iconfont" !important;
+  font-size:16px;
+  font-style:normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-play:before { content: "\e6e1"; }
+
+.icon-pause:before { content: "\e70d"; }
+
+.icon-next:before { content: "\e674"; }
+
