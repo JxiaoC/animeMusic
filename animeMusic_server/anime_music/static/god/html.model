@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ICO</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+</head>
+<body>
+<table class="layui-hide" id="table"></table>
+<div class="layui-input-inline">
+        <input type="text" name="username" lay-verify="required" placeholder="添加分类" autocomplete="off" class="layui-input js-sortname">
+      </div>
+<div class="layui-btn-group table-button">
+  <button class="layui-btn" data-type="addSort">添加ICO</button>
+</div>
+
+<script type="text/html" id="barDemo">
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="hot" onclick="hot(this);">设置热门</a>
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" onclick="del(this);">删除</a>
+</script>
+
+<script>
+    function GetQueryString(name) {      var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");      var r = window.location.search.substr(1).match(reg);      if(r!=null)return  unescape(r[2]); return null; }
+
+layui.use('table', function(){
+  var table = layui.table
+  ,form = layui.form;
+
+    table.render({
+    elem: '#table'
+    ,url:'/god/icos/list'
+    ,cellMinWidth: 80
+    ,cols: [[
+      {type:'numbers'}
+      ,{field:'id', title:'ID', width:100, unresize: true, sort: true}
+      ,{field:'name', title:'ICO名称', edit: 'text'}
+      ,{field:'hot', title:'热门', width: 60, align: 'center'}
+      ,{fixed: 'right', width:150,title: '操作', align:'center', toolbar: '#barDemo'}
+    ]]
+    ,page: true
+  });
+
+    var $ = layui.$, active = {
+    addSort: function(){ //获取选中数据
+      add();
+    }
+    ,batchSetCopyright: function(){ //获取选中数据
+      var checkStatus = table.checkStatus('table')
+      ,data = checkStatus.data;
+      var ids = '';
+      for (var i=0; i<data.length; i++){
+        ids += (data[i].id + ',');
+      }
+      update(ids, {'copyright': true});
+      $("td[data-field='1'] .layui-form-checkbox.layui-form-checked").parents("td[data-field='1']").siblings("td[data-field='copyright']").find(".layui-form-checkbox").addClass("layui-form-checked");
+    }
+    ,batchSetDel: function(){ //获取选中数据
+      var checkStatus = table.checkStatus('table')
+      ,data = checkStatus.data;
+      var ids = '';
+      for (var i=0; i<data.length; i++){
+        ids += (data[i].id + ',');
+      }
+      del(ids);
+      $("td[data-field='1'] .layui-form-checkbox.layui-form-checked").parents("td[data-field='1']").parent().remove();
+    }
+  };
+
+  $('.table-button .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+
+  //监听性别操作
+  form.on('checkbox(sexDemo)', function(obj){
+      update(this.value, {'sex': obj.elem.checked});
+    layer.tips(this.value + ' ' + this.name + '：'+ obj.elem.checked, obj.othis);
+  });
+
+  //监听锁定操作
+  form.on('checkbox(lockDemo)', function(obj){
+      update(this.value, {'copyright': obj.elem.checked});
+    layer.tips(this.value + ' ' + this.name + '：'+ obj.elem.checked, obj.othis);
+  });
+
+  table.on('edit', function(obj){
+    var value = obj.value //得到修改后的值
+    ,data = obj.data //得到所在行所有键值
+    ,field = obj.field; //得到字段
+
+    edit(data.id, value)
+  });
+});
+
+
+
+function add() {
+  var name = $('.js-sortname').val();
+  $.post("/god/icos/add", {'name': name});
+  reLoad();
+}
+
+function edit(id, name) {
+  $.post("/god/icos/edit", {'id': id, 'name': name});
+}
+
+function hot(This) {
+  var id = $(This).parents("tr").find("td[data-field='id']").text();
+    var hot = $(This).parents("tr").find("td[data-field='hot']").text() == '是' ? 'false': 'true';
+    $(This).parents("tr").find("td[data-field='hot']").text(hot == 'true' ? '是': '否')
+  $.post("/god/icos/edit", {'id': id, 'hot': hot});
+}
+
+function del(This) {
+  var id = $(This).parents("tr").find("td[data-field='id']").text();
+  $.post("/god/icos/del", {'id': id});
+  $(This).parents('tr').remove();
+}
+
+function reLoad() {
+  $('#body').load('/static/god/icos.html' + '?t=' + getRangeNum());
+}
+</script>
+
+</body>
+</html>

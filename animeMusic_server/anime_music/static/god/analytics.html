@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ICO</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <!-- 注意：如果你直接复制所有代码到本地，上述css路径需要改成你本地的 -->
+    <style>
+        tbody tr {
+            height: 100px;
+        }
+
+        tbody td .layui-table-cell {
+            height: auto;
+            text-overflow: initial;
+            white-space: inherit;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-form-item">
+    <div class="layui-inline">
+        <label class="layui-form-label">开始时间</label>
+        <div class="layui-input-inline">
+            <input type="text" name="date" id="start_data" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off"
+                   class="layui-input">
+        </div>
+
+        <label class="layui-form-label">结束时间</label>
+        <div class="layui-input-inline">
+            <input type="text" name="date" id="end_data" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off"
+                   class="layui-input">
+        </div>
+    </div>
+</div>
+<table class="layui-hide" id="table"></table>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del" onclick="push(this);">立即推送</a>
+</script>
+<script>
+    var form;
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null)return unescape(r[2]);
+        return null;
+    }
+    layui.use(['form', 'layedit', 'laydate', 'table'], function () {
+        var form = layui.form
+                , layer = layui.layer
+                , layedit = layui.layedit
+                , laydate = layui.laydate
+                , table = layui.table;
+
+        //日期
+        laydate.render({
+            elem: '#start_data'
+        });
+        laydate.render({
+            elem: '#end_data'
+        });
+
+        table.render({
+            elem: '#table'
+            , url: '/god/analytics/' + GetQueryString('type')
+            , cellMinWidth: 80
+            , cols: [[
+                {type: 'numbers'}
+                , {field: 'id', title: 'ID', width: 220, unresize: true, sort: true}
+                , {field: 'time', title: '时间', width: 220, sort: true}
+                , {field: 'num', title: '次数', sort: true, width: 100}
+                , {field: 'content', title: '内容', sort: true}
+            ]]
+            , page: true
+        });
+    });
+</script>
+
+</body>
+</html>
