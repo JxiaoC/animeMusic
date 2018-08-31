@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Anime</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/layui.css" media="all">
+    <style>
+        .anime-info {
+            display: none;
+        }
+
+        .layui-input-inline{
+            width: auto !important;
+        }
+    </style>
+</head>
+<body>
+<div class="demoTable layui-form">
+    <div class="layui-inline">
+        <select name="search_type" lay-filter="aihao">
+            <option value="_id">id</option>
+            <option value="title" selected="">标题</option>
+        </select>
+    </div>
+    <div class="layui-inline">
+        <input class="layui-input" name="id" id="searchReload" autocomplete="off">
+    </div>
+    <button class="layui-btn" data-type="reload" id="search">搜索</button>
+</div>
+
+<table class="layui-hide" id="table"></table>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="hot" onclick="edit(this);">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="hot" onclick="del(this);">删除</a>
+</script>
+
+<div class="layui-form anime-info">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>详细信息</legend>
+    </fieldset>
+    <div class="layui-form-item">
+        <label class="layui-form-label">id</label>
+        <div class="layui-input-block">
+            <input type="text" name="id" lay-verify="title" autocomplete="off" placeholder="id" class="layui-input"
+                   readonly>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="名称" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">LOGO</label>
+        <div class="layui-input-inline">
+            <div class="layui-upload">
+                <div class="layui-upload-list logo">
+                    <img class="layui-upload-img" id="upload_logo" width="300" height="154"/>
+                    <p id="logo_text"></p>
+                </div>
+            </div>
+        </div>
+        <label class="layui-form-label">背景</label>
+        <div class="layui-input-inline">
+            <div class="layui-upload">
+                <div class="layui-upload-list bg">
+                    <img class="layui-upload-img" id="upload_bg" width="300" height="154"/>
+                    <p id="bg_text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">描述</label>
+        <div class="layui-input-block">
+            <textarea placeholder="描述" class="layui-textarea" name="desc"></textarea>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">放送日期</label>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="text" name="year" placeholder="年" autocomplete="off" class="layui-input">
+            </div>
+            <div class="layui-form-mid">-</div>
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="text" name="month" placeholder="月" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" onclick="save();">保 存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function GetQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    var g_anime_info = {};
+
+    layui.use('table', function () {
+        var table = layui.table
+            , form = layui.form;
+
+        table.render({
+            elem: '#table'
+            , url: '/god/api/v1/anime/list'
+            , cellMinWidth: 80
+            , cols: [[
+                {type: 'numbers'}
+                , {field: '_id', title: 'id', width: 250, unresize: true, sort: true}
+                , {field: 'title', title: '名称'}
+                , {field: 'desc', title: '描述'}
+                , {field: 'atime', title: '添加时间', width: 200}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', width: 120}
+            ]]
+            , id: 'tableReload'
+            , page: true
+            , done: function (res) {
+                g_anime_info = {};
+                for (var i in res.data) {
+                    g_anime_info[res.data[i]._id] = res.data[i];
+                }
+            }
+        });
+
+        var $ = layui.$, active = {
+            reload: function () {
+                var searchReload = $('#searchReload');
+
+                //执行重载
+                table.reload('tableReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        search_value: searchReload.val(),
+                        search_type: $('select[name="search_type"]').val(),
+                    }
+                });
+            },
+            delBugMsgForBash: function () { //获取选中数据
+                del('bash');
+            },
+            delBugMsgForKey: function () { //获取选中数据
+                del('key');
+            }
+            , batchSetCopyright: function () { //获取选中数据
+                var checkStatus = table.checkStatus('table')
+                    , data = checkStatus.data;
+                var ids = '';
+                for (var i = 0; i < data.length; i++) {
+                    ids += (data[i].id + ',');
+                }
+                update(ids, {'copyright': true});
+                $("td[data-field='1'] .layui-form-checkbox.layui-form-checked").parents("td[data-field='1']").siblings("td[data-field='copyright']").find(".layui-form-checkbox").addClass("layui-form-checked");
+            },
+        };
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+
+    function del(self) {
+        if (confirm('确定删除选中项吗?')) {
+            var id = $(self).parents("tr").find("[data-field='_id']").text();
+            $.post("/god/api/v1/anime/del/" + id, function (res) {
+                console.log(res);
+            });
+            reLoad();
+        }
+    }
+
+    function reLoad() {
+        $('#search').click();
+    }
+
+    function edit(self) {
+        var id = $(self).parents("tr").find("[data-field='_id']").text();
+        var _anime_info = g_anime_info[id];
+        $('.anime-info input[name="id"]').val(id);
+        $('.anime-info input[name="title"]').val(_anime_info['title']);
+        $('.anime-info input[name="desc"]').val(_anime_info['desc']);
+        $('.anime-info input[name="year"]').val(_anime_info['year']);
+        $('.anime-info input[name="month"]').val(_anime_info['month']);
+        $('.layui-upload-list.logo').html('<img class="layui-upload-img" id="upload_logo" width="300" height="154"><input class="layui-upload-file" type="file" name="file"><p id="logo_text"></p>');
+        $('.layui-upload-list.bg').html('<img class="layui-upload-img" id="upload_bg" width="300" height="154"><input class="layui-upload-file" type="file" name="file"><p id="bg_text"></p>');
+        $('#upload_logo').attr('src', _anime_info['logo']);
+        $('#upload_bg').attr('src', _anime_info['bg']);
+
+
+    layui.use('upload', function() {
+        var $ = layui.jquery
+            , upload = layui.upload
+            , demoText = $('#logo_text');
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#upload_logo'
+            , url: '/god/api/v1/anime/upload/logo/' + $('.anime-info input[name="id"]').val()
+            , before: function (obj) {
+                demoText.html('<span style="color: #009688;">上传中...</span>');
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code < 0) {
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                $('#upload_logo').attr('src', res.src);
+                g_anime_info[$('.anime-info input[name="id"]').val()]['logo'] = res.src;
+                demoText.html('<span style="color: #009688;">上传成功</span>');
+            }
+            , error: function () {
+                //演示失败状态，并实现重传
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function () {
+                    uploadInst.upload();
+                });
+            }
+        });
+    });
+
+    layui.use('upload', function() {
+        var $ = layui.jquery
+            , upload = layui.upload
+            , demoText = $('#bg_text');
+
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#upload_bg'
+            , url: '/god/api/v1/anime/upload/bg/' + $('.anime-info input[name="id"]').val()
+            , before: function (obj) {
+                demoText.html('<span style="color: #009688;">上传中...</span>');
+            }
+            , done: function (res) {
+                //如果上传失败
+                if (res.code < 0) {
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                $('#upload_bg').attr('src', res.src);
+                g_anime_info[$('.anime-info input[name="id"]').val()]['bg'] = res.src;
+                demoText.html('<span style="color: #009688;">上传成功</span>');
+            }
+            , error: function () {
+                //演示失败状态，并实现重传
+                demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                demoText.find('.demo-reload').on('click', function () {
+                    uploadInst.upload();
+                });
+            }
+        });
+    });
+
+        $('.anime-info').show();
+    }
+
+    function save() {
+        var id = $('.anime-info input[name="id"]').val();
+        var title = $('.anime-info input[name="title"]').val();
+        var desc = $('.anime-info input[name="desc"]').val();
+        var year = $('.anime-info input[name="year"]').val();
+        var month = $('.anime-info input[name="month"]').val();
+        $.post("/god/api/v1/anime/save/" + id, {title: title, desc: desc, year: year, month: month}, function (res) {
+            g_anime_info[id]['title'] = title;
+            g_anime_info[id]['desc'] = desc;
+            g_anime_info[id]['year'] = year;
+            g_anime_info[id]['month'] = month;
+            console.log(res);
+        });
+    }
+
+    layui.use('form', function () {
+        var form = layui.form;
+        form.render();
+    });
+</script>
+
+</body>
+</html>

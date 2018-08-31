@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-# pip install xpinyin
 
 import turbo.log
 from bson import ObjectId
@@ -7,9 +6,12 @@ from bson import ObjectId
 import json
 import redis
 import time
+import os
 import random
 from models.anime_music import model
-from lib.c_python import c_python as cp
+from helper.c_python import c_python as cp
+import helper.image as image
+import helper.tietuku as tietuku
 import hashlib
 
 logger = turbo.log.getLogger(__file__)
@@ -61,6 +63,7 @@ class AnimeListHeader(turbo.app.BaseHandler):
 
         res = []
         for f in _list:
+            f['atime'] = str(cp.unixtimeToDatetime(f['atime']))
             res.append(cp.formatWriteJson(f))
 
         self.write({
@@ -69,6 +72,85 @@ class AnimeListHeader(turbo.app.BaseHandler):
             'count': count,
             'data': res,
         })
+
+
+class AnimeSaveHeader(turbo.app.BaseHandler):
+    def post(self, id):
+        if not id or not ObjectId.is_valid(id):
+            return
+        id = ObjectId(id)
+        title = self.get_argument('title', '')
+        desc = self.get_argument('desc', '')
+        year = int(self.get_argument('year', 0))
+        month = int(self.get_argument('month', 0))
+
+        tb_anime.update({'_id': id}, {'$set': {
+            'title': title,
+            'desc': desc,
+            'year': year,
+            'month': month,
+        }})
+        self.write({'code': 0, 'msg': 'ok'})
+
+
+class AnimeDelHeader(turbo.app.BaseHandler):
+    def post(self, id):
+        if not id or not ObjectId.is_valid(id):
+            return
+        id = ObjectId(id)
+        if tb_music.find({'anime_id': id}).count() > 0:
+            self.write({'code': -1, 'msg': '数据库内还有音频数据，无法删除'})
+            return
+        tb_anime.remove({'_id': id})
+        self.write({'code': 0, 'msg': 'ok'})
+
+
+class AnimeUploadLogoHeader(turbo.app.BaseHandler):
+    def post(self, id):
+        if not id or not ObjectId.is_valid(id):
+            return
+        id = ObjectId(id)
+
+        if not os.path.exists('temp'):
+            os.mkdir('temp')
+
+        file_path = 'temp/%s' % self.request.files['file'][0]['filename']
+        with open(file_path, 'wb') as f:
+            f.write(self.request.files['file'][0]['body'])
+
+        image.clipResizeImg(path=file_path, out_path=file_path, width=1220, height=604, quality=65)
+
+        image_url = tietuku.uploadImgToTieTuKu(file_path)
+
+        if image_url:
+            tb_anime.update({'_id': id}, {'$set': {'logo': image_url}})
+            self.write({'code': 0, 'msg': 'ok', 'src': image_url})
+        else:
+            self.write({'code': -1, 'msg': '上传失败'})
+
+
+class AnimeUploadBgHeader(turbo.app.BaseHandler):
+    def post(self, id):
+        if not id or not ObjectId.is_valid(id):
+            return
+        id = ObjectId(id)
+
+        if not os.path.exists('temp'):
+            os.mkdir('temp')
+
+        file_path = 'temp/%s' % self.request.files['file'][0]['filename']
+        with open(file_path, 'wb') as f:
+            f.write(self.request.files['file'][0]['body'])
+
+        image.resizeImg(path=file_path, out_path=file_path, width=1920, quality=65)
+
+        image_url = tietuku.uploadImgToTieTuKu(file_path)
+
+        if image_url:
+            tb_anime.update({'_id': id}, {'$set': {'bg': image_url}})
+            self.write({'code': 0, 'msg': 'ok', 'src': image_url})
+        else:
+            self.write({'code': -1, 'msg': '上传失败'})
 
 
 class MusicListHeader(turbo.app.BaseHandler):

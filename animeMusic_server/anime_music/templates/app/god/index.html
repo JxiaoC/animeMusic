@@ -53,8 +53,8 @@
         <li class="layui-nav-item layui-nav-itemed js-content-list">
           <a class="" href="javascript:;">数据管理</a>
           <dl class="layui-nav-child">
-            <dd><a href="javascript:;" data-url="/static/jina/news.html?type=lives">动漫数据</a></dd>
-            <dd><a href="javascript:;" data-url="/static/jina/news.html?type=weibo">音乐数据</a></dd>
+            <dd><a href="javascript:;" data-url="/static/god/anime.html?type=lives">动漫数据</a></dd>
+            <dd><a href="javascript:;" data-url="/static/god/music.html?type=weibo">音乐数据</a></dd>
           </dl>
         </li>
       </ul>
@@ -86,7 +86,7 @@ layui.use(['element', 'form'], function(){
        $(this).unbind().click(function(){
            var url = $(this).data('url');
            console.log(url);
-           history.pushState(null,null,'/jina?url=' + url.replace('?', '&'));
+           history.pushState(null,null,'/god?url=' + url.replace('?', '&'));
            $('#body').load(url + '&t=' + getRangeNum());
        });
     });

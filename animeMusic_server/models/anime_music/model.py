@@ -1,6 +1,7 @@
 #-*- coding:utf-8 -*-
 
 from .base import *
+from bson import ObjectId
 
 
 class AnimeList(Model):
