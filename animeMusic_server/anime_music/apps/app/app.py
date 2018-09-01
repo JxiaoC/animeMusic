@@ -60,7 +60,7 @@ class MusicHeader(turbo.app.BaseHandler):
         key = 'recommend_keys' if recommend == 'true' else 'keys'
         keys = r.get(key)
         if keys:
-            keys = json.loads(keys)
+            keys = json.loads(keys.decode())
         else:
             keys = []
             Q = {}
