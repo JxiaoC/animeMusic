@@ -10,16 +10,17 @@ register.register_group_urls('/api/v1', [
 ])
 
 register.register_group_urls('/god', [
-    ('', god.MusicHeader),
+    ('', god.GodHeader),
 ])
 
 register.register_group_urls('/god/api/v1', [
     ('/anime/list', god.AnimeListHeader),
-    ('/anime/save/([0-9a-f]{24})', god.AnimeSaveHeader),
-    ('/anime/del/([0-9a-f]{24})', god.AnimeDelHeader),
-    ('/anime/upload/logo/([0-9a-f]{24})', god.AnimeUploadLogoHeader),
-    ('/anime/upload/bg/([0-9a-f]{24})', god.AnimeUploadBgHeader),
+    ('/anime/add', god.AnimeAddHeader),
+    ('/anime/(save|del)/([0-9a-f]{24})', god.AnimeHeader),
+    ('/anime/upload/(logo|bg)/([0-9a-f]{24})', god.AnimeUploadHeader),
 
     ('/music/list', god.MusicListHeader),
-    ('/music/del', god.MusicListHeader),
+    ('/music/add/([0-9a-f]{24})', god.MusicAddHeader),
+    ('/music/(save|del)/([0-9a-f]{24})', god.MusicHeader),
+    ('/music/upload/([0-9a-f]{24})', god.MusicUploadHeader),
 ])

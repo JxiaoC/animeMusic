@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Music</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/static/css/layui.css" media="all">
+    <style>
+        .music-add, .js-search {
+            display: none;
+        }
+
+        .music-info {
+            display: none;
+        }
+
+        .layui-input-inline {
+            width: auto !important;
+        }
+    </style>
+</head>
+<body>
+<div class="demoTable layui-form">
+    <div class="js-search">
+        <div class="layui-inline">
+            <select name="search_type" lay-filter="aihao">
+                <option value="_id">id</option>
+                <option value="anime_id">anime_id</option>
+                <option value="title" selected="">标题</option>
+            </select>
+        </div>
+        <div class="layui-inline">
+            <input class="layui-input" name="id" id="searchReload" autocomplete="off" style="width: 210px;">
+        </div>
+        <button class="layui-btn" data-type="reload" id="search">搜索</button>
+    </div>
+    <div class="music-add">
+        <div class="layui-inline">
+            <input class="layui-input" name="title" autocomplete="off" placeholder="新的anime名称" style="width: 210px;">
+        </div>
+        <button class="layui-btn" data-type="reload" id="search" onclick="add(this);">添加</button>
+    </div>
+</div>
+
+<table class="layui-hide" id="table"></table>
+
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="hot" onclick="edit(this);">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="hot" onclick="del(this);">删除</a>
+</script>
+
+<div class="layui-form music-info">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>详细信息</legend>
+    </fieldset>
+    <div class="layui-form-item">
+        <label class="layui-form-label">id</label>
+        <div class="layui-input-block">
+            <input type="text" name="id" lay-verify="title" autocomplete="off" placeholder="id" class="layui-input"
+                   readonly>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">名称</label>
+        <div class="layui-input-block">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="名称" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">作者</label>
+        <div class="layui-input-block">
+            <input type="text" name="author" lay-verify="title" autocomplete="off" placeholder="作者" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">推荐</label>
+        <div class="layui-input-block">
+            <input type="checkbox" name="recommend" lay-skin="switch" lay-text="Yes|No">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">MP3试听</label>
+        <div class="layui-input-block">
+            <audio name="mp3_player" controls="" style="width: 100%;"/>
+        </div>
+    </div>
+    <div class="layui-form-item"><label class="layui-form-label"></label>
+        <div class="layui-input-block">
+            <div class="layui-upload">
+                <div class="layui-upload-list upload_mp3">
+                    <button class="layui-btn layui-btn-normal" id="upload_mp3">上传MP3</button>
+                    <p id="upload_text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <div class="layui-input-block">
+            <button class="layui-btn" onclick="save();">保 存</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var g_anime_id = null;
+    var g_music_info = {};
+
+    layui.use('table', function () {
+        var $ = layui.$
+            , table = layui.table
+            , form = layui.form;
+
+        var url = '/god/api/v1/music/list';
+        var anime_id = GetQueryString('animeid', true);
+        if (anime_id) {
+            url += ('?search_type=anime_id&search_value=' + anime_id);
+            g_anime_id = anime_id;
+            $('.music-add').css('display', 'inline-block');
+            $('select[name="search_type"]').val('anime_id');
+            $('#searchReload').val(g_anime_id);
+            form.render('select');
+        }else{
+            $('.js-search').show();
+        }
+
+        table.render({
+            elem: '#table'
+            , url: url
+            , cellMinWidth: 80
+            , cols: [[
+                {type: 'numbers'}
+                , {field: '_id', title: 'id', width: 250, unresize: true, sort: true}
+                , {field: 'title', title: '名称'}
+                , {field: 'anime_name', title: '所属动漫'}
+                , {field: 'author', title: '作者'}
+                , {field: 'atime', title: '添加时间', width: 200}
+                , {fixed: 'right', title: '操作', toolbar: '#barDemo', align: 'center', width: 120}
+            ]]
+            , id: 'tableReload'
+            , page: true
+            , done: function (res) {
+                g_music_info = {};
+                for (var i in res.data) {
+                    g_music_info[res.data[i]._id] = res.data[i];
+                }
+            }
+        });
+
+        var active = {
+            reload: function () {
+                var searchReload = $('#searchReload');
+
+                //执行重载
+                table.reload('tableReload', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                    , where: {
+                        search_value: searchReload.val(),
+                        search_type: $('select[name="search_type"]').val(),
+                    }
+                });
+            }
+        };
+
+        $('.demoTable .layui-btn').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+
+
+    function del(self) {
+        if (confirm('确定删除选中项吗?')) {
+            var id = $(self).parents("tr").find("[data-field='_id']").text();
+            $.post("/god/api/v1/music/del/" + id, function (res) {
+                reLoad();
+                console.log(res);
+            });
+            if (id == $('.music-info input[name="id"]').val()){
+                $('.music-info').hide();
+            }
+        }
+    }
+
+    function reLoad() {
+        $('#search').click();
+    }
+
+    function edit(self) {
+        var id = $(self).parents("tr").find("[data-field='_id']").text();
+        var _music_info = g_music_info[id];
+        $('.music-info input[name="id"]').val(id);
+        $('.music-info input[name="title"]').val(_music_info['title']);
+        $('.music-info input[name="author"]').val(_music_info['author']);
+        $('.layui-upload-list.upload_mp3').html('<button class="layui-btn layui-btn-normal" id="upload_mp3">上传MP3</button><p id="upload_text"></p>');
+        $('.music-info audio[name="mp3_player"]')[0].src = _music_info['play_url'];
+        if (_music_info['recommend']) {
+            $('.music-info input[name="recommend"]').siblings('.layui-form-switch').addClass('layui-form-onswitch');
+        } else {
+            $('.music-info input[name="recommend"]').siblings('.layui-form-switch').removeClass('layui-form-onswitch');
+        }
+
+
+        layui.use('upload', function () {
+            var $ = layui.jquery
+                , upload = layui.upload
+                , demoText = $('#upload_text');
+
+            //普通图片上传
+            var uploadInst = upload.render({
+                elem: '#upload_mp3'
+                ,accept: 'file'
+                , url: '/god/api/v1/music/upload/' + $('.music-info input[name="id"]').val()
+                , before: function (obj) {
+                    demoText.html('<span style="color: #009688;">上传中...</span>');
+                }
+                , done: function (res) {
+                    //如果上传失败
+                    if (res.code < 0) {
+                        return layer.msg('上传失败');
+                    }
+                    //上传成功
+                    $('.music-info audio[name="mp3_player"]')[0].src = res.src;
+                    g_music_info[$('.music-info input[name="id"]').val()]['play_url'] = res.src;
+                    demoText.html('<span style="color: #009688;">上传成功</span>');
+                }
+                , error: function () {
+                    //演示失败状态，并实现重传
+                    demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+                    demoText.find('.demo-reload').on('click', function () {
+                        uploadInst.upload();
+                    });
+                }
+            });
+        });
+
+        $('.music-info').show();
+    }
+
+    function save() {
+        var id = $('.music-info input[name="id"]').val();
+        var title = $('.music-info input[name="title"]').val();
+        var desc = $('.music-info input[name="desc"]').val();
+        var year = $('.music-info input[name="year"]').val();
+        var month = $('.music-info input[name="month"]').val();
+        $.post("/god/api/v1/music/save/" + id, {title: title, desc: desc, year: year, month: month}, function (res) {
+            g_music_info[id]['title'] = title;
+            g_music_info[id]['desc'] = desc;
+            g_music_info[id]['year'] = year;
+            g_music_info[id]['month'] = month;
+            console.log(res);
+        });
+    }
+
+    function add() {
+        var title = $('.music-add input[name="title"]').val();
+        $('.music-add input[name="title"]').val('');
+        $.post("/god/api/v1/music/add/" + g_anime_id, {title: title}, function (res) {
+            reLoad();
+        });
+    }
+
+    layui.use('form', function () {
+        var form = layui.form;
+        form.render();
+    });
+</script>
+
+</body>
+</html>

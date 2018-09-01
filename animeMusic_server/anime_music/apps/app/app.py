@@ -3,6 +3,7 @@
 
 import turbo.log
 from bson import ObjectId
+import tornado
 
 import json
 import redis
@@ -34,6 +35,7 @@ def GetSignUrl(id):
 
 
 class MusicHeader(turbo.app.BaseHandler):
+    @tornado.web.asynchronous
     def get(self, id=None):
         if not id or not ObjectId.is_valid(id):
             recommend = self.get_argument('recommend', '0')
@@ -45,6 +47,7 @@ class MusicHeader(turbo.app.BaseHandler):
         info['play_url'] = GetSignUrl(info['id'])
         self.set_header("Access-Conitrol-Allow-Origin", "*")
         self.write(info)
+        self.finish()
 
     def get_anime_info(self, animeid):
         if not animeid:

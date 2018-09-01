@@ -3,15 +3,18 @@
 import turbo.log
 from bson import ObjectId
 
-import json
+import tornado
 import redis
 import time
+import threading
 import os
-import random
 from models.anime_music import model
 from helper.c_python import c_python as cp
-import helper.image as image
-import helper.tietuku as tietuku
+from helper import image
+from helper import tietuku
+from helper import file_server
+from helper import ftp
+from aliyun import oss
 import hashlib
 
 logger = turbo.log.getLogger(__file__)
@@ -36,7 +39,7 @@ def GetSignUrl(id):
     return 'http://anime-music.files.jijidown.com/%s_128.mp3?t=%s&sign=%s' % (id, timeout, m2.hexdigest().upper())
 
 
-class MusicHeader(turbo.app.BaseHandler):
+class GodHeader(turbo.app.BaseHandler):
     def get(self):
         self.render('app/god/index.html')
 
@@ -74,17 +77,38 @@ class AnimeListHeader(turbo.app.BaseHandler):
         })
 
 
-class AnimeSaveHeader(turbo.app.BaseHandler):
-    def post(self, id):
+class AnimeAddHeader(turbo.app.BaseHandler):
+    def post(self):
+        title = self.get_argument('title', '')
+        if tb_anime.find_one({'title': title}):
+            self.write({'code': -1, 'msg': '已经存在相同的名称了'})
+            return
+        tb_anime.insert({
+            'title': title,
+            'atime': int(time.time()),
+            'desc': '',
+            'bg': '',
+            'logo': '',
+            'year': 0,
+            'month': 0,
+        })
+        self.write({'code': 0, 'msg': 'ok'})
+
+
+class AnimeHeader(turbo.app.BaseHandler):
+    def post(self, type, id):
         if not id or not ObjectId.is_valid(id):
             return
-        id = ObjectId(id)
+        self.id = ObjectId(id)
+        self.route(type)
+
+    def do_save(self):
         title = self.get_argument('title', '')
         desc = self.get_argument('desc', '')
         year = int(self.get_argument('year', 0))
         month = int(self.get_argument('month', 0))
 
-        tb_anime.update({'_id': id}, {'$set': {
+        tb_anime.update({'_id': self.id}, {'$set': {
             'title': title,
             'desc': desc,
             'year': year,
@@ -92,21 +116,16 @@ class AnimeSaveHeader(turbo.app.BaseHandler):
         }})
         self.write({'code': 0, 'msg': 'ok'})
 
-
-class AnimeDelHeader(turbo.app.BaseHandler):
-    def post(self, id):
-        if not id or not ObjectId.is_valid(id):
-            return
-        id = ObjectId(id)
-        if tb_music.find({'anime_id': id}).count() > 0:
+    def do_del(self):
+        if tb_music.find({'anime_id': self.id}).count() > 0:
             self.write({'code': -1, 'msg': '数据库内还有音频数据，无法删除'})
             return
-        tb_anime.remove({'_id': id})
+        tb_anime.remove({'_id': self.id})
         self.write({'code': 0, 'msg': 'ok'})
 
 
-class AnimeUploadLogoHeader(turbo.app.BaseHandler):
-    def post(self, id):
+class AnimeUploadHeader(turbo.app.BaseHandler):
+    def post(self, type, id):
         if not id or not ObjectId.is_valid(id):
             return
         id = ObjectId(id)
@@ -118,36 +137,15 @@ class AnimeUploadLogoHeader(turbo.app.BaseHandler):
         with open(file_path, 'wb') as f:
             f.write(self.request.files['file'][0]['body'])
 
-        image.clipResizeImg(path=file_path, out_path=file_path, width=1220, height=604, quality=65)
-
-        image_url = tietuku.uploadImgToTieTuKu(file_path)
-
-        if image_url:
-            tb_anime.update({'_id': id}, {'$set': {'logo': image_url}})
-            self.write({'code': 0, 'msg': 'ok', 'src': image_url})
+        if type == 'logo':
+            image.clipResizeImg(path=file_path, out_path=file_path, width=1220, height=604, quality=65)
         else:
-            self.write({'code': -1, 'msg': '上传失败'})
-
-
-class AnimeUploadBgHeader(turbo.app.BaseHandler):
-    def post(self, id):
-        if not id or not ObjectId.is_valid(id):
-            return
-        id = ObjectId(id)
-
-        if not os.path.exists('temp'):
-            os.mkdir('temp')
-
-        file_path = 'temp/%s' % self.request.files['file'][0]['filename']
-        with open(file_path, 'wb') as f:
-            f.write(self.request.files['file'][0]['body'])
-
-        image.resizeImg(path=file_path, out_path=file_path, width=1920, quality=65)
+            image.resizeImg(path=file_path, out_path=file_path, width=1920, quality=65)
 
         image_url = tietuku.uploadImgToTieTuKu(file_path)
 
         if image_url:
-            tb_anime.update({'_id': id}, {'$set': {'bg': image_url}})
+            tb_anime.update({'_id': id}, {'$set': {type: image_url}})
             self.write({'code': 0, 'msg': 'ok', 'src': image_url})
         else:
             self.write({'code': -1, 'msg': '上传失败'})
@@ -176,6 +174,12 @@ class MusicListHeader(turbo.app.BaseHandler):
         res = []
         for f in _list:
             f['play_url'] = GetSignUrl(str(f['_id']))
+            anime_info = tb_anime.find_one({'_id': f.get('anime_id', None)})
+            if anime_info:
+                f['anime_name'] = anime_info.get('title')
+            else:
+                f['anime_name'] = '未知'
+            f['atime'] = str(cp.unixtimeToDatetime(f['atime']))
             res.append(cp.formatWriteJson(f))
 
         self.write({
@@ -184,3 +188,78 @@ class MusicListHeader(turbo.app.BaseHandler):
             'count': count,
             'data': res,
         })
+
+
+class MusicAddHeader(turbo.app.BaseHandler):
+    def post(self, id):
+        if not id or not ObjectId.is_valid(id):
+            return
+        id = ObjectId(id)
+
+        title = self.get_argument('title', '')
+        if tb_music.find_one({'title': title}):
+            self.write({'code': -1, 'msg': '已经存在相同的名称了'})
+            return
+        tb_music.insert({
+            'title': title,
+            'atime': int(time.time()),
+            'anime_id': id,
+            'author': '',
+            'recommend': False,
+        })
+        self.write({'code': 0, 'msg': 'ok'})
+
+
+class MusicHeader(turbo.app.BaseHandler):
+    @tornado.web.asynchronous
+    def post(self, type, id):
+        if not id or not ObjectId.is_valid(id):
+            return
+        self.id = ObjectId(id)
+        self.route(type)
+
+    def do_save(self):
+        title = self.get_argument('title', '')
+        author = self.get_argument('author', '')
+        recommend = True if self.get_argument('recommend', 'true') == 'true' else False
+
+        tb_music.update({'_id': self.id}, {'$set': {
+            'title': title,
+            'author': author,
+            'recommend': recommend,
+        }})
+        self.write({'code': 0, 'msg': 'ok'})
+        self.finish()
+
+    def do_del(self):
+        tb_music.remove({'_id': self.id})
+        _thread = threading.Thread(target=self.thread_del)
+        _thread.start()
+        self.write({'code': 0, 'msg': 'ok'})
+        self.finish()
+
+    def thread_del(self):
+        name = '%s.mp3' % self.id
+        oss.del_file(name)
+        ftp.del_file(name.replace('.mp3', '_128.mp3'))
+
+
+class MusicUploadHeader(turbo.app.BaseHandler):
+    def post(self, id):
+        if not id or not ObjectId.is_valid(id):
+            return
+        id = ObjectId(id)
+
+        if not os.path.exists('temp'):
+            os.mkdir('temp')
+
+        file_path = 'temp/%s' % self.request.files['file'][0]['filename']
+        with open(file_path, 'wb') as f:
+            f.write(self.request.files['file'][0]['body'])
+
+        image_url = file_server.upload_file_to_oss_and_ftp(file_path, '%s.mp3' % id)
+
+        if image_url:
+            self.write({'code': 0, 'msg': 'ok', 'src': GetSignUrl(str(id))})
+        else:
+            self.write({'code': -1, 'msg': '上传失败'})
