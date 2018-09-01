@@ -45,8 +45,12 @@ class MusicHeader(turbo.app.BaseHandler):
         info['id'] = str(info.pop('_id'))
         info.pop('anime_id')
         info['play_url'] = GetSignUrl(info['id'])
-        self.set_header("Access-Conitrol-Allow-Origin", "*")
         self.write(info)
+
+        self.set_header("Access-Control-Allow-Origin", "*") # 这个地方可以写域名
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+
         self.finish()
 
     def get_anime_info(self, animeid):
