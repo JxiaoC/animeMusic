@@ -32,7 +32,7 @@ case $1 in
 
             echo [port: $i] starting $service ...
 
-            nohup python $MAIN --port=$i >"$log.$i" 2>&1 < /dev/null &
+            nohup python3 $MAIN --port=$i >"$log.$i" 2>&1 < /dev/null &
             echo $! > "$_pid"
             sleep 0.5; head "$log.$i"
         done
@@ -58,7 +58,7 @@ case $1 in
 
     (test)
 
-        python $MAIN --port=9000
+        python3 $MAIN --port=9000
         ;;
 
     (*)
