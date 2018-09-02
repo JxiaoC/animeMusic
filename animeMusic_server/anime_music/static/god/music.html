@@ -243,14 +243,12 @@
     function save() {
         var id = $('.music-info input[name="id"]').val();
         var title = $('.music-info input[name="title"]').val();
-        var desc = $('.music-info input[name="desc"]').val();
-        var year = $('.music-info input[name="year"]').val();
-        var month = $('.music-info input[name="month"]').val();
-        $.post("/god/api/v1/music/save/" + id, {title: title, desc: desc, year: year, month: month}, function (res) {
+        var author = $('.music-info input[name="author"]').val();
+        var recommend = $('.music-info input[name="recommend"]')[0].checked;
+        $.post("/god/api/v1/music/save/" + id, {title: title, author: author, recommend: recommend}, function (res) {
             g_music_info[id]['title'] = title;
-            g_music_info[id]['desc'] = desc;
-            g_music_info[id]['year'] = year;
-            g_music_info[id]['month'] = month;
+            g_music_info[id]['author'] = author;
+            g_music_info[id]['recommend'] = recommend;
             console.log(res);
         });
     }
