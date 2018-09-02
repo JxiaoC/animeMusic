@@ -277,7 +277,7 @@
     function save() {
         var id = $('.anime-info input[name="id"]').val();
         var title = $('.anime-info input[name="title"]').val();
-        var desc = $('.anime-info input[name="desc"]').val();
+        var desc = $('.anime-info textarea[name="desc"]').val();
         var year = $('.anime-info input[name="year"]').val();
         var month = $('.anime-info input[name="month"]').val();
         $.post("/god/api/v1/anime/save/" + id, {title: title, desc: desc, year: year, month: month}, function (res) {
