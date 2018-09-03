@@ -15,6 +15,9 @@ from helper import tietuku
 from helper import file_server
 from helper import ftp
 from aliyun import oss
+from tornado import gen
+from tornado.concurrent import run_on_executor
+from concurrent.futures import ThreadPoolExecutor
 import hashlib
 
 logger = turbo.log.getLogger(__file__)
@@ -245,7 +248,18 @@ class MusicHeader(turbo.app.BaseHandler):
 
 
 class MusicUploadHeader(turbo.app.BaseHandler):
+    executor = ThreadPoolExecutor(4)
+
+    @gen.coroutine
     def post(self, id):
+        image_url = yield self.upload(id)
+        if image_url:
+            self.write({'code': 0, 'msg': 'ok', 'src': GetSignUrl(str(id))})
+        else:
+            self.write({'code': -1, 'msg': '上传失败'})
+
+    @run_on_executor
+    def upload(self, id):
         if not id or not ObjectId.is_valid(id):
             return
         id = ObjectId(id)
@@ -257,9 +271,4 @@ class MusicUploadHeader(turbo.app.BaseHandler):
         with open(file_path, 'wb') as f:
             f.write(self.request.files['file'][0]['body'])
 
-        image_url = file_server.upload_file_to_oss_and_ftp(file_path, '%s.mp3' % id)
-
-        if image_url:
-            self.write({'code': 0, 'msg': 'ok', 'src': GetSignUrl(str(id))})
-        else:
-            self.write({'code': -1, 'msg': '上传失败'})
+        return file_server.upload_file_to_oss_and_ftp(file_path, '%s.mp3' % id)
