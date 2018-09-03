@@ -198,10 +198,15 @@
         $('.layui-upload-list.upload_mp3').html('<button class="layui-btn layui-btn-normal" id="upload_mp3">上传MP3</button><p id="upload_text"></p>');
         $('.music-info audio[name="mp3_player"]')[0].src = _music_info['play_url'];
         if (_music_info['recommend']) {
-            $('.music-info input[name="recommend"]').siblings('.layui-form-switch').addClass('layui-form-onswitch');
+            $('.music-info input[name="recommend"]')[0].checked = true;
         } else {
-            $('.music-info input[name="recommend"]').siblings('.layui-form-switch').removeClass('layui-form-onswitch');
+            $('.music-info input[name="recommend"]')[0].checked = false;
         }
+
+        layui.use('form', function () {
+            var form = layui.form;
+            form.render();
+        });
 
 
         layui.use('upload', function () {
