@@ -277,7 +277,15 @@
     function save() {
         var id = $('.anime-info input[name="id"]').val();
         var title = $('.anime-info input[name="title"]').val();
+        if (!title){
+            alert('请输入标题名称');
+            return;
+        }
         var desc = $('.anime-info textarea[name="desc"]').val();
+        if (!desc){
+            alert('请输入描述');
+            return;
+        }
         var year = $('.anime-info input[name="year"]').val();
         var month = $('.anime-info input[name="month"]').val();
         $.post("/god/api/v1/anime/save/" + id, {title: title, desc: desc, year: year, month: month}, function (res) {
@@ -291,6 +299,10 @@
 
     function add() {
         var title = $('.anime-add input[name="title"]').val();
+        if (!title){
+            alert('请输入标题名称');
+            return;
+        }
         $('.anime-add input[name="title"]').val('');
         $.post("/god/api/v1/anime/add", {title: title}, function (res) {
             reLoad();

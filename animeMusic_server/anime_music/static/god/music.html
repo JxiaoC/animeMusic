@@ -69,6 +69,19 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">类型</label>
+        <div class="layui-input-block">
+            <select name="type" lay-filter="aihao">
+                <option value="" selected="">请选择所属类型</option>
+                <option value="OP">OP</option>
+                <option value="ED">ED</option>
+                <option value="BGM">BGM</option>
+                <option value="角色歌">角色歌</option>
+                <option value="其他">其他</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
         <label class="layui-form-label">作者</label>
         <div class="layui-input-block">
             <input type="text" name="author" lay-verify="title" autocomplete="off" placeholder="作者" class="layui-input">
@@ -195,6 +208,7 @@
         $('.music-info input[name="id"]').val(id);
         $('.music-info input[name="title"]').val(_music_info['title']);
         $('.music-info input[name="author"]').val(_music_info['author']);
+        $('.music-info select[name="type"]').val(_music_info['type']);
         $('.layui-upload-list.upload_mp3').html('<button class="layui-btn layui-btn-normal" id="upload_mp3">上传MP3</button><p id="upload_text"></p>');
         $('.music-info audio[name="mp3_player"]')[0].src = _music_info['play_url'];
         if (_music_info['recommend']) {
@@ -248,9 +262,22 @@
     function save() {
         var id = $('.music-info input[name="id"]').val();
         var title = $('.music-info input[name="title"]').val();
+        if (!title){
+            alert('请输入标题名称');
+            return;
+        }
         var author = $('.music-info input[name="author"]').val();
+        if (!author){
+            alert('请输入作者');
+            return;
+        }
+        var type = $('.music-info select[name="type"]').val();
+        if (!type){
+            alert('请输入类型');
+            return;
+        }
         var recommend = $('.music-info input[name="recommend"]')[0].checked;
-        $.post("/god/api/v1/music/save/" + id, {title: title, author: author, recommend: recommend}, function (res) {
+        $.post("/god/api/v1/music/save/" + id, {title: title, author: author, recommend: recommend, type: type}, function (res) {
             g_music_info[id]['title'] = title;
             g_music_info[id]['author'] = author;
             g_music_info[id]['recommend'] = recommend;
@@ -260,6 +287,10 @@
 
     function add() {
         var title = $('.music-add input[name="title"]').val();
+        if (!title){
+            alert('请输入标题名称');
+            return;
+        }
         $('.music-add input[name="title"]').val('');
         $.post("/god/api/v1/music/add/" + g_anime_id, {title: title}, function (res) {
             reLoad();

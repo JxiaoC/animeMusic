@@ -224,10 +224,12 @@ class MusicHeader(turbo.app.BaseHandler):
     def do_save(self):
         title = self.get_argument('title', '')
         author = self.get_argument('author', '')
+        type = self.get_argument('type', '')
         recommend = True if self.get_argument('recommend', 'true') == 'true' else False
 
         tb_music.update({'_id': self.id}, {'$set': {
             'title': title,
+            'type': type,
             'author': author,
             'recommend': recommend,
         }})
