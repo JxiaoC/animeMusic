@@ -141,9 +141,9 @@ class AnimeUploadHeader(turbo.app.BaseHandler):
             f.write(self.request.files['file'][0]['body'])
 
         if type == 'logo':
-            image.clipResizeImg(path=file_path, out_path=file_path, width=1220, height=604, quality=65)
+            image.clipResizeImg(path=file_path, out_path=file_path, width=1220, height=604, quality=85)
         else:
-            image.resizeImg(path=file_path, out_path=file_path, width=1920, quality=65)
+            image.resizeImg(path=file_path, out_path=file_path, width=1920, quality=85)
 
         image_url = tietuku.uploadImgToTieTuKu(file_path)
 
