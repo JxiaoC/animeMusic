@@ -38,7 +38,7 @@
 # 前端
 > 主要是用来给主站提供播放功能的一个小轮子, 包含完整的播放器功能, 提供了最常用的播放状态回调, 使用源生js实现。
 
-> [DEMO](https://jxiaoc.github.io/animeMusic/demo.html)
+> DEMO: [https://jxiaoc.github.io/animeMusic/demo.html](https://jxiaoc.github.io/animeMusic/demo.html)
 
 ## 简易文档
 
@@ -136,6 +136,24 @@ PS：第一次播放请使用animeMusic.Next(); 详细方法见demo
 
 > 同时为了降低文件服务器的负荷, 后台会将上传上来的MP3文件自动转码成128Kbps音质, 转码使用ffmpeg, 所以需要提前安装
 <br>sudo apt-get install ffmpeg<br>pip3 install ffmpy 
+
+#### 服务端配置以及启动
+
+> 启动文件main.py在 animeMusic_server/anime_music中
+
+##### daemon.sh 文件
+> daemon.sh文件主要负责主程序的启动和关闭
+> <br> ./daemon.sh start ./daemon.sh stop
+
+> 这里只写一些不常见的参数, 其他参数看变量名应该也能知道是什么
+> <br>PORT_RANGE: 要监听的端口范围, 12040 12043 则为监听12040, 12041, 12042和12043共计4个端口, 也就意味着会启动4个线程
+> <br>PORT_RANGE的端口范围要和nginx配置中的upstream一一对应
+
+##### restart.sh 文件
+> 负责启动和重启主程序, 通过调用daemon.sh的stop和start实现
+
+##### main.py 文件
+> 主程序入口, 负责监听指定端口, 常驻后台处理http请求, 一般情况下不需要直接运行此文件, 推荐通过restart.sh文件启动 
 
 # 文件服务器
 
