@@ -10,36 +10,30 @@ import aliyun.oss as oss
 from ffmpy import FFmpeg
 
 def upload_file_to_oss_and_ftp(file_path, name):
-    Num = 0
     print('uploadImgToOSSAndFtp, ', name)
-    while Num < 20:
-        try:
-            Num += 1
-            print('uploading to oss...')
-            oss.upload_file(name, file_path)
+    try:
+        print('uploading to oss...')
+        oss.upload_file(name, file_path)
 
-            print('format mp3 file...')
-            file_path_128 = file_path.replace('.mp3', '_128.mp3')
-            get_mp3file(file_path, file_path_128)
+        print('format mp3 file...')
+        file_path_128 = file_path.replace('.mp3', '_128.mp3')
+        get_mp3file(file_path, file_path_128)
 
-            _128_name = name.replace('.mp3', '_128.mp3')
+        _128_name = name.replace('.mp3', '_128.mp3')
 
-            print('uploading to ftp...')
-            ftp.upload_file(file_path_128, _128_name)
+        print('uploading to ftp...')
+        ftp.upload_file(file_path_128, _128_name)
 
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            if os.path.exists(file_path_128):
-                os.remove(file_path_128)
-            return '%s%s/%s' % (setting.FTPHOST, setting.FTPDIR, _128_name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        if os.path.exists(file_path_128):
+            os.remove(file_path_128)
+        return '%s%s/%s' % (setting.FTPHOST, setting.FTPDIR, _128_name), ''
 
-        except:
-            print(traceback.format_exc())
-            time.sleep(10)
-            if os.path.exists(file_path):
-                os.remove(file_path)
-            pass
-    return False
+    except:
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return False, traceback.format_exc()
 
 
 def get_mp3file(out_file_path, out_file_path_mp3):

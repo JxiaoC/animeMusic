@@ -254,11 +254,11 @@ class MusicUploadHeader(turbo.app.BaseHandler):
 
     @gen.coroutine
     def post(self, id):
-        image_url = yield self.upload(id)
+        image_url, error_data = yield self.upload(id)
         if image_url:
             self.write({'code': 0, 'msg': 'ok', 'src': GetSignUrl(str(id))})
         else:
-            self.write({'code': -1, 'msg': '上传失败'})
+            self.write({'code': -1, 'msg': '上传失败:' + error_data})
 
     @run_on_executor
     def upload(self, id):
