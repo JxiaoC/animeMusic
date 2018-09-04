@@ -26,6 +26,8 @@ def GetSignUrl(id):
 def get_music_info(id, recommend):
     if not id or not ObjectId.is_valid(id):
         id = ObjectId(get_random_id(recommend))
+    else:
+        id = ObjectId(id)
     info = tb_music.find_one({'_id': id})
     info['anime_info'] = get_anime_info(info.get('anime_id', None))
     info['id'] = str(info.pop('_id'))
