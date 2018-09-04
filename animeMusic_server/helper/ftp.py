@@ -3,12 +3,16 @@ import ftplib
 import traceback
 from .import setting
 
-
+# setting参数说明
+# FTPDIR: FTP上传文件目录, 使用/开头
+# FTPADDRESS: FTP地址, 推荐使用IP
+# FTPUSER: FTP登录账号
+# FTPASSWD: FTP登录密码
 def upload_file(file_path, name, to_dir=setting.FTPDIR):
     f = ftplib.FTP(setting.FTPADDRESS)
     f.login(setting.FTPUSER, setting.FTPASSWD)
-    f.cwd(to_dir)  # FTP上传文件目录, 使用/开头
-    bufsize = 1024  # 设置缓冲器大小
+    f.cwd(to_dir)
+    bufsize = 1024
     fp = open(file_path, 'rb')
     f.storbinary('STOR ' + name, fp, bufsize)
     fp.close()
@@ -17,7 +21,7 @@ def upload_file(file_path, name, to_dir=setting.FTPDIR):
 def del_file(name, dir=setting.FTPDIR):
     f = ftplib.FTP(setting.FTPADDRESS)
     f.login(setting.FTPUSER, setting.FTPASSWD)
-    f.cwd(dir)  # FTP上传文件目录, 使用/开头
+    f.cwd(dir)
     [(_name == name and f.delete(name)) for _name in f.nlst()]
 
 

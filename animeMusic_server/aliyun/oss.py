@@ -1,6 +1,10 @@
 import oss2
 from .import setting
 
+# setting参数说明
+# OSSKEY 阿里云AccessKey ID
+# OSSVALUE 阿里云Access Key Secret
+# 详见https://usercenter.console.aliyun.com/#/manage/ak
 ossauth = oss2.Auth(setting.OSSKEY, setting.OSSVALUE)
 if setting.Debug:
     ossendpoint = 'http://oss-cn-hangzhou.aliyuncs.com'

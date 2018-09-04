@@ -1,7 +1,44 @@
-﻿# 前端
+﻿# API
+#### 随机返回一首音乐
+
+> 请求URL: https://anime-music.jijidown.com/api/v1/music
+
+> 请求方式: GET
+
+> 请求参数: <br>recommend   bool    非必须 #是否只返回推荐曲目
+
+> 返回内容:
+```
+{
+    id: "5b84d6e0b02de208826878ff", # 使用此ID可以直接获取到该条数据, 详见下面
+    atime: 1535432416,
+    play_url: "http://anime-music.files.jijidown.com/5b84d6e0b02de208826878ff_128.mp3?t=1536044958&sign=48242B5A45230126CE75E5F93ABAFABF",
+    title: "Caffeine",
+    recommend: false,
+    type: "其他",
+    author: "未知",
+    anime_info: {
+        id: "5b836fb6b02de2130c916306",
+        logo: "",
+        atime: 1390018594,
+        desc: "《RWBY》是一部在2013年7月播出的动画。R、W、B、Y 分别是英语红白黑黄的首字母，代表的分别是四位女主角的主题色。由美国 Rooster Teeth 动画工作室RWBY团队制作，导演Monty Oum 。已正式播放正片。 本作的背景设定在类现代但是充满著超自然力量的世界。主要人物为四个拥有各自的特殊能力及武器的女孩，她们因各种原因聚在一起组成团队并接受训练，以对抗怪物、恶棍或其他类似的团体。在这系列中，“尘埃”（Dust）被用作魔力来源。",
+        bg: "http://i1.fuimg.com/510372/1c1c5225f97f8b35.jpg",
+        month: 99,
+        title: "RWBY",
+        year: 9999,
+    },
+}
+```
+
+#### 返回指定ID的信息
+> 请求URL: https://anime-music.jijidown.com/api/v1/music/5b84d6e0b02de208826878ff
+
+> 其他信息和上面的接口是一样的
+
+# 前端
 > 主要是用来给主站提供播放功能的一个小轮子, 包含完整的播放器功能, 提供了最常用的播放状态回调, 使用源生js实现。
 
-> [DEMO](http://anime-music.files.jijidown.com)
+> [DEMO](https://jxiaoc.github.io/animeMusic/demo.html)
 
 ## 简易文档
 
@@ -47,26 +84,7 @@
 
 > animeMusic.onLoaded = function(res) {console.log(res)};
 
-播放器加载完毕后会触发此回调，并且会传入res, 请根据res返回的数据进行页面填充, res格式如下
-
-``` {
-    title: "迷惑スペクタクル",
-    play_url: "http://anime-music.files.jijidown.com/5b852309b02de202d2f97a76_128.mp3?t=1535616962&sign=E3FFE0BB789F153EEFE5FCC4B5454100",
-    recommend: 1,
-    atime: 1535451913,
-    id: "5b852309b02de202d2f97a76",
-    anime_info: {
-        title: "上课小动作",
-        month: 1,
-        bg: "http://i2.tiimg.com/510372/beb3c236c8e111fd.jpg",
-        year: 2014,
-        logo: "http://i1.fuimg.com/510372/e638b6c3413a884a.jpg",
-        atime: 1402639425,
-        id: "5b8389cbb02de275deb90f73",
-        desc: "坐在横井同学隔壁的男生──关同学，是个总是在上课时以令人叹为观止的方式玩著各种游戏的人，因此横井同学每次都会不由自主的被他吸引住目光，无法认真上课，让横井同学每天都为此困扰不已。究竟关同学是如何的运用上课时间玩各种游戏，横井同学又会身不由己的陪著他闹出什麼笑话呢？这是一部以上课时间为舞台的搞笑诙谐故事。",
-    }
-}
- ```
+播放器加载完毕后会触发此回调，并且会传入res, 请根据res返回的数据进行页面填充, res格式详见最上方API
  
 ### 方法
 
@@ -106,14 +124,18 @@ PS：第一次播放请使用animeMusic.Next(); 详细方法见demo
 
 请求将只会返回推荐的曲目, 在下次执行Next时生效, Next指定id时无效
 
-
-
 # 服务端
 
 > 服务器基于debian + nginx + python + redis + mongodb 开发
 
-> 服务端代码将在随后发出（现在还在写后台方面的东西）
+> 后台通过/god可以直接访问, python中没有做任何权限设置, 而是直接交由nginx处理, 详见[此文件](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/anime_music/nginx/anime-music.jijidown.com.conf)
 
+> 图片存储在贴图库中, 通过官方API进行上传, 需要单独新建setting.py文件并且配置相应key, 在[此文件](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/helper/tietuku.py)中有详细注释
+
+> MP3文件分别存储在阿里云OSS和自建的文件服务器上, OSS主要用于备份, 文件服务器用于MP3播放器直链; 文件服务器的数据管理通过FTP实现, 所以需要在文件服务器上自己搭建好FTP, 并在配置文件中配置好相应参数; 所有的配置参数均在代码的注释中有详细说明, [OSS](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/aliyun/oss.py), [FTP](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/helper/ftp.py)
+
+> 同时为了降低文件服务器的负荷, 后台会将上传上来的MP3文件自动转码成128Kbps音质, 转码使用ffmpeg, 所以需要提前安装
+<br>sudo apt-get install ffmpeg<br>pip3 install ffmpy 
 
 # 文件服务器
 
