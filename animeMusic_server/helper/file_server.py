@@ -28,7 +28,7 @@ def upload_file_to_oss_and_ftp(file_path, name):
             os.remove(file_path)
         if os.path.exists(file_path_128):
             os.remove(file_path_128)
-        return '%s%s/%s' % (setting.FTPHOST, setting.FTPDIR, _128_name), ''
+        return '%s%s/%s' % (setting.FILESERVERHOST, setting.FTPDIR, _128_name), ''
 
     except:
         if os.path.exists(file_path):
