@@ -29,6 +29,9 @@ def get_music_info(id, recommend):
     else:
         id = ObjectId(id)
     info = tb_music.find_one({'_id': id})
+    return format_music_info(info)
+
+def format_music_info(info):
     info['anime_info'] = get_anime_info(info.get('anime_id', None))
     info['id'] = str(info.pop('_id'))
     info.pop('anime_id')
@@ -64,3 +67,39 @@ def get_random_id(recommend):
         r.expire(key, 600)
 
     return keys[random.randint(0, len(keys) - 1)]
+
+
+def get_music_list(limit, page):
+    _list = tb_music.find().sort('atime', -1).limit(limit).skip((page - 1) * limit)
+    res = []
+    for f in _list:
+        f = format_music_info(f)
+        f.pop('play_url')
+        res.append(f)
+    return res
+
+
+def search_music(key, limit, page):
+    limit, page = int(limit), int(page)
+    _list = tb_music.find({'title': {'$regex': key}}).sort('atime', -1).limit(limit).skip((page - 1) * limit)
+    res = []
+    for f in _list:
+        f = format_music_info(f)
+        f.pop('play_url')
+        res.append(f)
+    return res
+
+
+def search_anime(key, limit, page):
+    anime_list = tb_anime.find({'title': {'$regex': key}}).sort('atime', -1)
+    anime_ids = []
+    for f in anime_list:
+        anime_ids.append(f['_id'])
+    res = []
+
+    _list = tb_music.find({'anime_id': {'$in': anime_ids}}).sort('atime', -1).limit(limit).skip((page - 1) * limit)
+    for f in _list:
+        f = format_music_info(f)
+        f.pop('play_url')
+        res.append(f)
+    return res

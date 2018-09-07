@@ -2,11 +2,20 @@
 from turbo import register
 
 from .import app
+from .import appv2
 from .import god
 
 register.register_group_urls('/api/v1', [
     ('/music', app.MusicHeader),
     ('/music/([0-9a-f]{24})', app.MusicHeader),
+])
+
+register.register_group_urls('/api/v2', [
+    ('/music', appv2.MusicHeader),
+    ('/music/([0-9a-f]{24})', appv2.MusicHeader),
+    ('/music/list', appv2.MusicListHeader),
+    ('/music/search', appv2.MusicSearchHeader),
+    ('/anime/search', appv2.AnimeSearchHeader),
 ])
 
 register.register_group_urls('/god', [
