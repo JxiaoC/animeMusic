@@ -198,7 +198,7 @@
         var _anime_info = g_anime_info[id];
         $('.anime-info input[name="id"]').val(id);
         $('.anime-info input[name="title"]').val(_anime_info['title']);
-        $('.anime-info input[name="desc"]').val(_anime_info['desc']);
+        $('.anime-info textarea[name="desc"]').val(_anime_info['desc']);
         $('.anime-info input[name="year"]').val(_anime_info['year']);
         $('.anime-info input[name="month"]').val(_anime_info['month']);
         $('.layui-upload-list.logo').html('<img class="layui-upload-img" id="upload_logo" width="300" height="154"><input class="layui-upload-file" type="file" name="file"><p id="logo_text"></p>');
