@@ -1,11 +1,13 @@
 var animeMusic = {
     'recommend': false,
+    'max_load_time': 10, // 最大加载时间, 一首歌的加载时间超过此数值, 将会直接跳到下一曲
     '_anime_music_player': new Audio(),
     '_loading': false,
     '_play_or_pauseing': false,
     '_setI_play': null,
     '_setI_pause': null,
     '_setI_progress': null,
+    '_now_load_time': 0,
     'Play': function () {
         if ((animeMusic._play_or_pauseing || !animeMusic._anime_music_player.paused)) return;
         animeMusic._play_or_pauseing = true;
@@ -90,6 +92,7 @@ var animeMusic = {
                         setTimeout(function () {
                             animeMusic._anime_music_player.src = res.play_url;
                             animeMusic.Play();
+                            animeMusic._now_load_time = 0;
                             animeMusic._loading = false;
                             try {
                                 animeMusic.onLoaded(res);

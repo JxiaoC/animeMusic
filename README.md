@@ -1,7 +1,7 @@
 ﻿# API
 #### 随机返回一首音乐
 
-> 请求URL: https://anime-music.jijidown.com/api/v1/music
+> 请求URL: https://anime-music.jijidown.com/api/v2/music
 
 > 请求方式: GET
 
@@ -10,30 +10,49 @@
 > 返回内容:
 ```
 {
-    id: "5b84d6e0b02de208826878ff", # 使用此ID可以直接获取到该条数据, 详见下面
-    atime: 1535432416,
-    play_url: "http://anime-music.files.jijidown.com/5b84d6e0b02de208826878ff_128.mp3?t=1536044958&sign=48242B5A45230126CE75E5F93ABAFABF",
-    title: "Caffeine",
-    recommend: false,
-    type: "其他",
-    author: "未知",
-    anime_info: {
-        id: "5b836fb6b02de2130c916306",
-        logo: "",
-        atime: 1390018594,
-        desc: "《RWBY》是一部在2013年7月播出的动画。R、W、B、Y 分别是英语红白黑黄的首字母，代表的分别是四位女主角的主题色。由美国 Rooster Teeth 动画工作室RWBY团队制作，导演Monty Oum 。已正式播放正片。 本作的背景设定在类现代但是充满著超自然力量的世界。主要人物为四个拥有各自的特殊能力及武器的女孩，她们因各种原因聚在一起组成团队并接受训练，以对抗怪物、恶棍或其他类似的团体。在这系列中，“尘埃”（Dust）被用作魔力来源。",
-        bg: "http://i1.fuimg.com/510372/1c1c5225f97f8b35.jpg",
-        month: 99,
-        title: "RWBY",
-        year: 9999,
+    msg: "ok",
+    code: 0,
+    res: {
+        anime_info: {
+            bg: "http://i1.fuimg.com/510372/a7d92b4163395fd3.jpg",
+            year: 2014,
+            id: "5b8369c4b02de2130c916266",
+            title: "境界触发者",
+            atime: 1425915035,
+            desc: "某一天﹐通往异世界的门打开了﹐从异世界而来的侵略者“近界民”﹐蹂躏门附近的地区﹐街上被恐怖所覆盖。 　　突然出现的迷之团体“BORDER”击退了“近界民”﹐为了对抗陆续来袭的“近界民”﹐并在这边的世界建成基地。 　　四年后﹐“近界民”空闲游真从异世界来到日本寻找父亲的熟人﹐并遇上三云修。 修为了解“近界民”的真相﹐决定指引及监视人生路不熟的游真﹐两人的故事随着“BORDER”与“近界民”的战斗展开。",
+            logo: "http://i1.fuimg.com/510372/29d718b13038e23b.jpg",
+            month: 10,
+        },
+        play_url: "http://anime-music.files.jijidown.com/5b84dfd7b02de2088268793e_128.mp3?t=1538018792&sign=50FDEEE90BCB0612BD9C0C2E3CE4FF46",
+        type: "其他",
+        recommend: true,
+        title: "GIRIGIRI",
+        atime: 1535434711,
+        id: "5b84dfd7b02de2088268793e",
+        author: "未知",
     },
 }
 ```
 
 #### 返回指定ID的信息
-> 请求URL: https://anime-music.jijidown.com/api/v1/music/5b84d6e0b02de208826878ff
+> 请求URL: https://anime-music.jijidown.com/api/v2/music/5b84dfd7b02de2088268793e
 
 > 其他信息和上面的接口是一样的
+
+#### 搜索歌曲/动漫
+> 搜索歌曲请求URL: https://anime-music.jijidown.com/api/v2/music/search
+> 搜索动漫请求URL: https://anime-music.jijidown.com/api/v2/anime/search
+
+> 请求方式: GET
+
+> 请求参数: 
+<br>key     str    必须 #搜索关键词
+<br>limit   int    非必须 #每页返回数量
+<br>page   int    非必须 #页数
+
+> 请求示例:
+<br>https://anime-music.jijidown.com/api/v2/music/search?key=%E7%9A%84&limit=5&page=1
+<br>https://anime-music.jijidown.com/api/v2/anime/search?key=%E7%9A%84&limit=5&page=1
 
 # 前端
 > 主要是用来给主站提供播放功能的一个小轮子, 包含完整的播放器功能, 提供了最常用的播放状态回调, 使用源生js实现。

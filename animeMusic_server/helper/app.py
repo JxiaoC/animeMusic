@@ -85,7 +85,7 @@ def search_music(key, limit, page):
     res = []
     for f in _list:
         f = format_music_info(f)
-        f.pop('play_url')
+        f.pop('play_url')  # 因为play_url有时效性, 可能在使用的时候就已经失效了, 所以这里过滤掉.
         res.append(f)
     return res
 
@@ -100,6 +100,6 @@ def search_anime(key, limit, page):
     _list = tb_music.find({'anime_id': {'$in': anime_ids}}).sort('atime', -1).limit(limit).skip((page - 1) * limit)
     for f in _list:
         f = format_music_info(f)
-        f.pop('play_url')
+        f.pop('play_url')  # 因为play_url有时效性, 可能在使用的时候就已经失效了, 所以这里过滤掉.
         res.append(f)
     return res
