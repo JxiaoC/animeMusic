@@ -69,7 +69,7 @@ class AnimeListHeader(turbo.app.BaseHandler):
 
         res = []
         for f in _list:
-            f['atime'] = str(cp.unixtimeToDatetime(f['atime']))
+            f['atime'] = str(cp.unixtimeToDatetime(f.get('atime', 0)))
             res.append(cp.formatWriteJson(f))
 
         self.write({

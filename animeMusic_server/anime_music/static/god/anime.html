@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link rel="stylesheet" href="/static/css/layui.css" media="all">
     <style>
-        .anime-add{
+        .anime-add {
             display: inline-block;
             float: right;
         }
@@ -44,12 +44,12 @@
     </div>
 </div>
 
-<table class="layui-hide" id="table"></table>
+<table class="layui-hide" id="table" lay-filter="table"></table>
 
 <script type="text/html" id="barDemo">
-    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="hot" onclick="edit(this);">编辑</a>
-    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="hot" onclick="music(this);">音乐</a>
-    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="hot" onclick="del(this);">删除</a>
+    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="music">音乐</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
 <div class="layui-form anime-info">
@@ -164,18 +164,32 @@
             var type = $(this).data('type');
             active[type] ? active[type].call(this) : '';
         });
+
+
+        //监听行工具事件
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'edit') {
+                edit(data);
+            }
+            else if (obj.event === 'music') {
+                music(data._id);
+            }
+            else if (obj.event === 'del') {
+                del(data._id);
+            }
+        });
     });
 
 
-    function del(self) {
+    function del(id) {
         if (confirm('确定删除选中项吗?')) {
-            var id = $(self).parents("tr").find("[data-field='_id']").text();
             $.post("/god/api/v1/anime/del/" + id, function (res) {
-                if (res.code != 0){
+                if (res.code != 0) {
                     alert(res.msg);
                     return;
                 }
-                if (id == $('.anime-info input[name="id"]').val()){
+                if (id == $('.anime-info input[name="id"]').val()) {
                     $('.anime-info').hide();
                 }
                 reLoad();
@@ -187,14 +201,13 @@
         $('#search').click();
     }
 
-    function music(self){
-        var id = $(self).parents("tr").find("[data-field='_id']").text();
+    function music(id) {
         window.open('/god?url=/static/god/music.html<animeid=' + id);
         console.log('/god?url=/static/god/music.html<animeid=' + id);
     }
 
-    function edit(self) {
-        var id = $(self).parents("tr").find("[data-field='_id']").text();
+    function edit(data) {
+        var id = data._id;
         var _anime_info = g_anime_info[id];
         $('.anime-info input[name="id"]').val(id);
         $('.anime-info input[name="title"]').val(_anime_info['title']);
@@ -277,12 +290,12 @@
     function save() {
         var id = $('.anime-info input[name="id"]').val();
         var title = $('.anime-info input[name="title"]').val();
-        if (!title){
+        if (!title) {
             alert('请输入标题名称');
             return;
         }
         var desc = $('.anime-info textarea[name="desc"]').val();
-        if (!desc){
+        if (!desc) {
             alert('请输入描述');
             return;
         }
@@ -299,7 +312,7 @@
 
     function add() {
         var title = $('.anime-add input[name="title"]').val();
-        if (!title){
+        if (!title) {
             alert('请输入标题名称');
             return;
         }
