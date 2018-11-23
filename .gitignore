@@ -5,3 +5,4 @@ __test__
 certificate
 */aliyun/setting.py
 */helper/setting.py
+*.txt

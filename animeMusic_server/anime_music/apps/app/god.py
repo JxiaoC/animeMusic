@@ -273,4 +273,4 @@ class MusicUploadHeader(turbo.app.BaseHandler):
         with open(file_path, 'wb') as f:
             f.write(self.request.files['file'][0]['body'])
 
-        return file_server.upload_file_to_oss_and_ftp(file_path, '%s.mp3' % id)
+        return file_server.upload_file_to_oss_and_scp(file_path, '%s.mp3' % id)
