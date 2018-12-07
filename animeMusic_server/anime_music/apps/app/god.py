@@ -137,15 +137,22 @@ class AnimeUploadHeader(turbo.app.BaseHandler):
             os.mkdir('temp')
 
         file_path = 'temp/%s' % self.request.files['file'][0]['filename']
+        out_file_path = file_path.replace('png', 'jpg')
         with open(file_path, 'wb') as f:
             f.write(self.request.files['file'][0]['body'])
 
         if type == 'logo':
-            image.clipResizeImg(path=file_path, out_path=file_path.replace('png', 'jpg'), width=1220, height=604, quality=85)
+            image.clipResizeImg(path=file_path, out_path=out_file_path, width=1220, height=604, quality=85)
         else:
-            image.resizeImg(path=file_path, out_path=file_path.replace('png', 'jpg'), width=1920, quality=85)
+            image.resizeImg(path=file_path, out_path=out_file_path, width=1920, quality=85)
 
-        image_url = tietuku.uploadImgToTieTuKu(file_path)
+        image_url = tietuku.uploadImgToTieTuKu(out_file_path)
+
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        if os.path.exists(out_file_path):
+            os.remove(out_file_path)
 
         if image_url:
             tb_anime.update({'_id': id}, {'$set': {type: image_url}})

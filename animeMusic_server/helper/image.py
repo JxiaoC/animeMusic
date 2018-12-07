@@ -40,7 +40,7 @@ def resizeImg(**args):
         newWidth = ori_w
         newHeight = ori_h
 
-    im.resize((newWidth, newHeight), image.ANTIALIAS).save(arg['out_path'], quality=arg['quality'])
+    im.resize((newWidth, newHeight), image.ANTIALIAS).convert('RGB').save(arg['out_path'], quality=arg['quality'])
 
 
 def clipResizeImg(**args):
@@ -83,4 +83,4 @@ def clipResizeImg(**args):
     ratio = float(arg['width']) / width
     newWidth = int(width * ratio)
     newHeight = int(height * ratio)
-    newIm.resize((newWidth, newHeight), image.ANTIALIAS).save(arg['out_path'], quality=arg['quality'])
+    newIm.resize((newWidth, newHeight), image.ANTIALIAS).convert('RGB').save(arg['out_path'], quality=arg['quality'])
