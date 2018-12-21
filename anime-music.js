@@ -47,7 +47,7 @@ var animeMusic = {
     'Pause': function () {
         if (animeMusic._play_or_pauseing || animeMusic._anime_music_player.paused) return;
         animeMusic._play_or_pauseing = true;
-        setInterval(animeMusic._setI_progress);
+        clearInterval(animeMusic._setI_progress);
         try {
             animeMusic.onPause();
         }
