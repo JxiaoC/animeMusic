@@ -4,6 +4,8 @@ import time
 import json
 import os
 import requests
+from turbo.core.exceptions import ResponseMsg
+
 
 def uploadImgToTieTuKu(file_path):
     exception = None
@@ -35,7 +37,7 @@ def uploadImgToTieTuKu(file_path):
                 exception = json_data
         except:
             pass
-    raise exception
+    raise ResponseMsg(-1, exception)
 
 if __name__ == '__main__':
     print (uploadImgToTieTuKu('/home/xiaoc/1.jpg'))
