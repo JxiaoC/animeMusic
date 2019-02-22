@@ -102,12 +102,14 @@
 
     animeMusic.recommend = true; //只播放推荐的音乐
 
-    //演示用，直接播放
-    if(getQueryString('id')){
-		animeMusic.Next(getQueryString('id'));
-	}
-	else{
-		animeMusic.Next();
-	}
+    window.onload = function(){
+        //演示用，直接播放
+        if(getQueryString('id')){
+            animeMusic.Next(getQueryString('id'));
+        }
+        else{
+            animeMusic.Next();
+        }
+    }
 </script>
 </html>

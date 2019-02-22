@@ -129,36 +129,39 @@ class AnimeHeader(turbo.app.BaseHandler):
 
 class AnimeUploadHeader(turbo.app.BaseHandler):
     def post(self, type, id):
-        if not id or not ObjectId.is_valid(id):
-            return
-        id = ObjectId(id)
+        try:
+            if not id or not ObjectId.is_valid(id):
+                return
+            id = ObjectId(id)
 
-        if not os.path.exists('temp'):
-            os.mkdir('temp')
+            if not os.path.exists('temp'):
+                os.mkdir('temp')
 
-        file_path = 'temp/%s' % self.request.files['file'][0]['filename']
-        out_file_path = file_path.replace('png', 'jpg')
-        with open(file_path, 'wb') as f:
-            f.write(self.request.files['file'][0]['body'])
+            file_path = 'temp/%s' % self.request.files['file'][0]['filename']
+            out_file_path = file_path.replace('png', 'jpg')
+            with open(file_path, 'wb') as f:
+                f.write(self.request.files['file'][0]['body'])
 
-        if type == 'logo':
-            image.clipResizeImg(path=file_path, out_path=out_file_path, width=1220, height=604, quality=85)
-        else:
-            image.resizeImg(path=file_path, out_path=out_file_path, width=1920, quality=85)
+            if type == 'logo':
+                image.clipResizeImg(path=file_path, out_path=out_file_path, width=1220, height=604, quality=85)
+            else:
+                image.resizeImg(path=file_path, out_path=out_file_path, width=1920, quality=85)
 
-        image_url = tietuku.uploadImgToTieTuKu(out_file_path)
+            image_url = tietuku.uploadImgToTieTuKu(out_file_path)
 
-        if os.path.exists(file_path):
-            os.remove(file_path)
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
-        if os.path.exists(out_file_path):
-            os.remove(out_file_path)
+            if os.path.exists(out_file_path):
+                os.remove(out_file_path)
 
-        if image_url:
-            tb_anime.update({'_id': id}, {'$set': {type: image_url}})
-            self.write({'code': 0, 'msg': 'ok', 'src': image_url})
-        else:
-            self.write({'code': -1, 'msg': '上传失败'})
+            if image_url:
+                tb_anime.update({'_id': id}, {'$set': {type: image_url}})
+                self.write({'code': 0, 'msg': 'ok', 'src': image_url})
+            else:
+                self.write({'code': -1, 'msg': '上传失败'})
+        except Exception as e:
+                self.write({'code': -1, 'msg': e})
 
 
 class MusicListHeader(turbo.app.BaseHandler):
