@@ -2,6 +2,7 @@
 from __future__ import absolute_import
 import realpath
 import requests
+import os
 
 from models.anime_music import model
 from helper import tietuku
@@ -14,7 +15,12 @@ def downloadAndUpload(title, url, filename):
     with open("./" + filename, "wb") as code:
         code.write(requests.get(url).content)
     print('uploading...')
-    return tietuku.uploadImgToTieTuKu("./" + filename)
+    img_url = tietuku.uploadImgToTieTuKu("./" + filename)
+    try:
+        os.remove("./" + filename)
+    except:
+        pass
+    return img_url
 
 
 skip = 0
