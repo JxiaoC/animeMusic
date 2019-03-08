@@ -35,11 +35,16 @@ while True:
         try:
             logo = f['logo']
             bg = f['bg']
+            if not logo and not bg:
+                continue
             title = f['title']
             filename = '%s.jpg' % f['_id']
 
             new_bg = downloadAndUpload(title, logo, filename)
             new_logo = downloadAndUpload(title, bg, filename)
+
+            if not new_bg or not new_logo:
+                continue
 
             tb_anime_list.update({'_id': f['_id']}, {'$set': {
                 'bg': new_bg,
