@@ -54,7 +54,8 @@ while True:
 
             complete_num += 1
             print('(', complete_num, '/', total, ')', title)
-        except:
+        except Exception as e:
+            print(e)
             pass
     if i == 0:
         print('complete')
