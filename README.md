@@ -151,7 +151,7 @@ PS：第一次播放请使用animeMusic.Next(); 详细方法见demo
 
 > 图片存储在贴图库中, 通过官方API进行上传, 需要单独新建setting.py文件并且配置相应key, 在[此文件](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/helper/tietuku.py)中有详细注释
 
-> MP3文件分别存储在阿里云OSS和自建的文件服务器上, OSS主要用于备份, 文件服务器用于MP3播放器直链; 文件服务器的数据管理通过FTP实现, 所以需要在文件服务器上自己搭建好FTP, 并在配置文件中配置好相应参数; 所有的配置参数均在代码的注释中有详细说明, [OSS](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/aliyun/oss.py), [FTP](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/helper/ftp.py)
+> MP3文件分别存储在阿里云OSS和自建的文件服务器上, OSS主要用于备份, 文件服务器用于MP3播放器直链; 文件服务器的数据管理通过FTP实现, 所以需要在文件服务器上自己搭建好FTP, 并在配置文件中配置好相应参数; 所有的配置参数均在代码的注释中有详细说明, [OSS](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/aliyun/oss.py), [FTP](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/helper/ftp.py), [(现在用的SCP代替FTP上传)](https://github.com/JxiaoC/animeMusic/blob/master/animeMusic_server/helper/scp.py)
 
 > 同时为了降低文件服务器的负荷, 后台会将上传上来的MP3文件自动转码成128Kbps音质, 转码使用ffmpeg, 所以需要提前安装
 <br>sudo apt-get install ffmpeg<br>pip3 install ffmpy 

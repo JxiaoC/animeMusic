@@ -4,11 +4,14 @@ import time
 import json
 import os
 import requests
+from turbo.core.exceptions import ResponseMsg
+
 
 
 def uploadImgToTieTuKu(file_path):
+    exception = None
     Num = 0
-    while Num < 20:
+    while Num < 3:
         try:
             Num += 1
 
@@ -31,10 +34,11 @@ def uploadImgToTieTuKu(file_path):
             if json_data.__len__() > 5:
                 os.remove(file_path)
                 return json_data['linkurl']
-
-        except Exception as e:
+            else:
+                exception = json_data
+        except:
             pass
-    return 'error'
+    raise ResponseMsg(-1, exception)
 
 if __name__ == '__main__':
     print (uploadImgToTieTuKu('/home/xiaoc/1.jpg'))
