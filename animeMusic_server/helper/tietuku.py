@@ -5,6 +5,7 @@ import json
 import os
 import requests
 
+
 def uploadImgToTieTuKu(file_path):
     Num = 0
     while Num < 20:
