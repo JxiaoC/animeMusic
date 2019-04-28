@@ -7,6 +7,7 @@ import requests
 from turbo.core.exceptions import ResponseMsg
 
 
+
 def uploadImgToTieTuKu(file_path):
     exception = None
     Num = 0

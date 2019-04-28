@@ -26,6 +26,7 @@ class AnimeList(Model):
         'logo':         (str,                  ''),
         'year':         (int,                   0),
         'month':        (int,                   0),
+        'tietukuname':  (str,                  ''),
     }
 
 
