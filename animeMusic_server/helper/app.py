@@ -39,7 +39,6 @@ def format_music_info(info):
     info['play_url'] = GetSignUrl(info['id'])
     info['type'] = info.get('type', '其他')
     info['author'] = info.get('author', '未知')
-    if 'tietukuname' in info.keys(): info.pop('tietukuname')
     info['recommend'] = True if info.get('recommend', False) else False
     return info
 
@@ -49,6 +48,7 @@ def get_anime_info(animeid):
         return {}
     info = tb_anime.find_one({'_id': animeid})
     info['id'] = str(info.pop('_id'))
+    if 'tietukuname' in info.keys(): info.pop('tietukuname')
     return info
 
 
