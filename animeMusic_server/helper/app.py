@@ -13,7 +13,7 @@ from models.anime_music import model
 tb_anime = model.AnimeList()
 tb_music = model.MusicList()
 
-r = redis.Redis(host='127.0.0.1', port=6379,db=0)
+r = redis.Redis(host='127.0.0.1', port=6379, db=0)
 
 
 def GetSignUrl(id):
@@ -31,6 +31,7 @@ def get_music_info(id, recommend):
     info = tb_music.find_one({'_id': id})
     return format_music_info(info)
 
+
 def format_music_info(info):
     info['anime_info'] = get_anime_info(info.get('anime_id', None))
     info['id'] = str(info.pop('_id'))
@@ -38,6 +39,7 @@ def format_music_info(info):
     info['play_url'] = GetSignUrl(info['id'])
     info['type'] = info.get('type', '其他')
     info['author'] = info.get('author', '未知')
+    if 'tietukuname' in info.keys(): info.pop('tietukuname')
     info['recommend'] = True if info.get('recommend', False) else False
     return info
 
