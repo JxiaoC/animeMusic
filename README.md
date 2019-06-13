@@ -180,27 +180,24 @@ PS：第一次播放请使用animeMusic.Next(); 详细方法见demo
 
 ```
 local request_uri = ngx.var.request_uri;
-local file_name = string.sub(request_uri, 2, 25);
 local arg = ngx.req.get_uri_args();
 local key = 'key';
 
 local function auth(name, t, sign)
     if ngx.time() >= tonumber(t) then
         ngx.header.content_type = "text/plain";
-	ngx.say('{"code": -1, "msg": "timeout"}');
-	ngx.exit(400);
-    end
-
-    local _ = ngx.md5(name .. t .. key);
-
-    if string.upper(_) ~= sign then
-	ngx.header.content_type = "text/plain";
-	ngx.say('{"code": -2, "msg": "sign fail"}');
+        ngx.say('{"code": -1, "msg": "timeout"}');
         ngx.exit(400);
     end
-
-    return true;
+    local _ = ngx.md5(name .. t .. key);
+    if string.upper(_) ~= sign then
+        ngx.header.content_type = "text/plain";
+        ngx.say('{"code": -2, "msg": "sign fail"}');
+        ngx.exit(400);
+    end
 end
-
-local auth_pass = auth(file_name, arg['t'], arg['sign']);
+if string.find(request_uri, '.mp3') then
+    local file_name = string.sub(request_uri, 2, 25);
+    local auth_pass = auth(file_name, arg['t'], arg['sign']);
+end
 ```

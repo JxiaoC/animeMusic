@@ -39,7 +39,7 @@ def GetSignUrl(id):
     timeout = int(time.time() + 3600)
     m2 = hashlib.md5()
     m2.update(('%s%s{AnimeToken}' % (id, timeout)).encode('utf-8'))
-    return 'http://anime-music.files.jijidown.com/%s_128.mp3?t=%s&sign=%s' % (id, timeout, m2.hexdigest().upper())
+    return 'http://anime-music-files.jijidown.com/%s_128.mp3?t=%s&sign=%s' % (id, timeout, m2.hexdigest().upper())
 
 
 class GodHeader(turbo.app.BaseHandler):
