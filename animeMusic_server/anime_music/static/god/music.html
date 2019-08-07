@@ -47,6 +47,7 @@
 <table class="layui-hide" id="table" lay-filter="table"></table>
 
 <script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="play">试听页面</a>
     <a class="layui-btn layui-btn-xs layui-btn-xs" lay-event="edit">编辑</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
@@ -172,6 +173,9 @@
             else if (obj.event === 'del') {
                 del(data._id);
             }
+            else if (obj.event === 'play') {
+                window.open('https://jxiaoc.github.io/animeMusic/demo.html?id=' + data._id);
+            }
         });
 
         var active = {
@@ -293,6 +297,7 @@
             g_music_info[id]['author'] = author;
             g_music_info[id]['recommend'] = recommend;
             console.log(res);
+            reLoad();
         });
     }
 
