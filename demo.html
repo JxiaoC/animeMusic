@@ -8,6 +8,7 @@
 <body>
 <div class="bg"></div>
 <div class="mask"></div>
+<div class="start" onclick="start()">Play()</div>
 <div class="player">
     <div class="logo"></div>
     <div class="control iconfont icon-play"></div>
@@ -24,20 +25,20 @@
     //为了方便查看, JS调用这一块的代码就不单独放一个js文件了
     function getQueryString(name, replace) {
         var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-        var _ = replace ? decodeURIComponent(window.location.search).replace(/</g, '&').replace(/>/g, '&'): window.location.search;
+        var _ = replace ? decodeURIComponent(window.location.search).replace(/</g, '&').replace(/>/g, '&') : window.location.search;
         var r = _.substr(1).match(reg);
         if (r != null) return unescape(r[2]);
         return null;
     }
 
     animeMusic.onProgress = function (per, now, all) {
-		//监听播放进度事件,返回的依次为播放百分比（Number）， 当前播放时间（MM:SS），总长度（MM:SS）
+        //监听播放进度事件,返回的依次为播放百分比（Number）， 当前播放时间（MM:SS），总长度（MM:SS）
         document.querySelector('.player .progress .now').style.width = per + '%';
         document.querySelector('.player .time').innerText = now + '/' + all;
     };
 
     animeMusic.onLoaded = function (res) {
-	    //数据请求完毕，res为请求结果
+        //数据请求完毕，res为请求结果
         console.log(res);
 
         history.pushState(null, document.title, '?id=' + res.id);
@@ -71,17 +72,17 @@
     };
 
     animeMusic.onPlay = function () {
-		//监听播放开始事件, 切换按钮状态和点击事件
+        //监听播放开始事件, 切换按钮状态和点击事件
         document.querySelector('.player .control').className = 'control iconfont icon-pause';
         document.querySelector('.player .control').onclick = function () {
             animeMusic.Pause();
         };
     };
-	
-	animeMusic.onLoad = animeMusic.onPlay;
+
+    animeMusic.onLoad = animeMusic.onPlay;
 
     animeMusic.onPause = function () {
-		//监听播放开始事件, 切换按钮状态和点击事件
+        //监听播放开始事件, 切换按钮状态和点击事件
         document.querySelector('.player .control').className = 'control iconfont icon-play';
         document.querySelector('.player .control').onclick = function () {
             animeMusic.Play();
@@ -89,27 +90,26 @@
     };
 
     document.querySelector('.player .next').onclick = function () {
-		//给下一曲按钮绑定点击事件
+        //给下一曲按钮绑定点击事件
         animeMusic.Next();
     };
 
     animeMusic.bindPlayTo('.player .progress'); //绑定鼠标点击进度条时的处理事件
 
     document.querySelector('.player .control').onclick = function () {
-		//给播放按钮赋予初始事件, 第一次加载音乐使用Next
+        //给播放按钮赋予初始事件, 第一次加载音乐使用Next
         animeMusic.Next();
     };
 
     animeMusic.recommend = true; //只播放推荐的音乐
 
-    window.onload = function(){
-        //演示用，直接播放
-        if(getQueryString('id')){
+    function start() {
+        if (getQueryString('id')) {
             animeMusic.Next(getQueryString('id'));
-        }
-        else{
+        } else {
             animeMusic.Next();
         }
+        document.querySelector('.start').style.display = 'none';
     }
 </script>
 </html>
