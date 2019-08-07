@@ -224,7 +224,7 @@ class MusicAddHeader(turbo.app.BaseHandler):
 
 
 class MusicHeader(turbo.app.BaseHandler):
-    @tornado.web.asynchronous
+    @gen.coroutine
     def post(self, type, id):
         if not id or not ObjectId.is_valid(id):
             return
