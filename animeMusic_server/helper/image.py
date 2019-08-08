@@ -54,23 +54,12 @@ def clipResizeImg(**args):
     ori_w, ori_h = im.size
 
     dst_scale = float(arg['height']) / arg['width']  # 目标高宽比
-    ori_scale = float(ori_h) / ori_w  # 原高宽比
 
-    if ori_scale >= dst_scale:
-        # 过高
-        width = ori_w
-        height = int(width * dst_scale)
+    width = ori_w
+    height = int(width * dst_scale)
 
-        x = 0
-        y = (ori_h - height) / 3
-
-    else:
-        # 过宽
-        height = ori_h
-        width = int(height * dst_scale)
-
-        x = (ori_w - width) / 2
-        y = 0
+    x = 0
+    y = (ori_h - height) / 3
 
     # 裁剪
     box = (x, y, width + x, height + y)
@@ -84,3 +73,7 @@ def clipResizeImg(**args):
     newWidth = int(width * ratio)
     newHeight = int(height * ratio)
     newIm.resize((newWidth, newHeight), image.ANTIALIAS).convert('RGB').save(arg['out_path'], quality=arg['quality'])
+
+
+if __name__ == '__main__':
+    clipResizeImg(path='/home/xiaoc/2.jpeg', out_path='/home/xiaoc/2.out.jpeg', width=1220, height=604, quality=85)
