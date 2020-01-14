@@ -54,6 +54,9 @@
                 }, 1100);
             }
             this.className = "show";
+            setTimeout(function(){
+                document.querySelectorAll('.bg img')[document.querySelectorAll('.bg img').length - 1].style.transform = 'scale(1.0,1.0)';
+            }, 10);
         };
         document.querySelector('.bg').append(bg);
 

@@ -16,11 +16,10 @@ body {
     left: 0;
     min-width: 100%;
     min-height: 100%;
-    transition: opacity 1s;
-    -moz-transition: opacity 1s;
-    -webkit-transition: opacity 1s;
-    -o-transition: opacity 1s;
+    transition: opacity 1s, transform 120s;
     opacity: 0;
+    transform: scale(1.2,1.2);
+    transition-timing-function: ease-out;
 }
 
 .bg img.show {
