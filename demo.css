@@ -16,7 +16,7 @@ body {
     left: 0;
     min-width: 100%;
     min-height: 100%;
-    transition: opacity 1s, transform 120s;
+    transition: opacity 1s, transform 180s;
     opacity: 0;
     transform: scale(1.2,1.2);
     transition-timing-function: ease-out;
