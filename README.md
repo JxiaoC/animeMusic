@@ -1,4 +1,6 @@
-﻿# API
+﻿### 已经开始着手修复图片不显示的问题(丢了...重新慢慢找) 2023-3-22 10:48:07
+ 
+ # API
 #### 随机返回一首音乐
 
 > 请求URL: https://anime-music.jijidown.com/api/v2/music
