@@ -18,6 +18,7 @@ def search(keywords: str):
             air_date = datetime.datetime(1970, 1, 1)
         else:
             air_date = datetime.datetime.strptime(f.get('air_date'), '%Y-%m-%d')
+        images = f.get('images', {})
         res.append({
             'id': f['id'],
             'name': f.get('name', ''),
@@ -25,10 +26,10 @@ def search(keywords: str):
             'desc': f.get('summary', ''),
             'year': air_date.year,
             'month': air_date.month,
-            'img': f.get('images', {}).get('medium', ''),
+            'img': images.get('medium', '') if images else '',
         })
     return res
 
 
 if __name__ == '__main__':
-    print(search('缘之空'))
+    print(search('蓝色监狱'))
