@@ -21,9 +21,36 @@
             width: auto !important;
         }
 
-        .layui-upload-img{
+        .layui-upload-img {
             min-height: 100px;
             border: 1px solid #ccc;
+        }
+
+        .bangumi.items {
+            padding: 5px;
+        }
+
+        .bangumi .item {
+            display: inline-block;
+            overflow: hidden;
+            width: 100px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .bangumi img {
+            width: 100%;
+        }
+
+        .bangumi .item .title {
+            font-size: 12px;
+            height: 18px;
+            position: absolute;
+            bottom: 0;
+            background: #00000047;
+            color: #fff;
+            width: 100%;
+            text-align: center;
         }
     </style>
 </head>
@@ -43,7 +70,8 @@
 
     <div class="anime-add">
         <div class="layui-inline">
-            <input class="layui-input" name="title" autocomplete="off" placeholder="新的anime名称" style="width: 210px;">
+            <input class="layui-input" name="title" autocomplete="off" placeholder="新的anime名称"
+                   style="width: 210px;">
         </div>
         <button class="layui-btn" data-type="reload" id="search" onclick="add(this);">添加</button>
     </div>
@@ -71,7 +99,20 @@
     <div class="layui-form-item">
         <label class="layui-form-label">名称</label>
         <div class="layui-input-block">
-            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="名称" class="layui-input">
+            <input type="text" name="title" lay-verify="title" autocomplete="off" placeholder="名称"
+                   class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">BangumiID</label>
+        <div class="layui-input-block">
+            <div class="layui-input-inline" style="width: 100px;">
+                <input type="text" name="bangumi_id" placeholder="对应Bangumi的番剧id" autocomplete="off"
+                       class="layui-input">
+            </div>
+            <div class="layui-input-inline" style="width: 100px;">
+                <button class="layui-btn" id="search_bangumi" onclick="search_bangumi();">查询</button>
+            </div>
         </div>
     </div>
     <div class="layui-form-item">
@@ -121,6 +162,7 @@
 
 <script>
     var g_anime_info = {};
+    var g_bangumi_info = {};
 
     layui.use('table', function () {
         var table = layui.table
@@ -176,11 +218,9 @@
             var data = obj.data;
             if (obj.event === 'edit') {
                 edit(data);
-            }
-            else if (obj.event === 'music') {
+            } else if (obj.event === 'music') {
                 music(data._id);
-            }
-            else if (obj.event === 'del') {
+            } else if (obj.event === 'del') {
                 del(data._id);
             }
         });
@@ -325,6 +365,53 @@
         $.post("/god/api/v1/anime/add", {title: title}, function (res) {
             reLoad();
         });
+    }
+
+    function search_bangumi() {
+        if ($('#search_bangumi').text() == '查询中') return;
+        $('#search_bangumi').text('查询中')
+        var title = $('.anime-info input[name="title"]').val();
+        $.post("/god/api/v1/anime/search_bangumi", {title: title}, function (res) {
+            console.log(res)
+            var html = '<div class="bangumi items">'
+            g_bangumi_info = {}
+            for (var f of res.res) {
+                g_bangumi_info[f['id']] = f
+                html += '\n<div class="item" data-id="' + f['id'] + '">\n'
+                html += '\n<img src="' + f['img'] + '"/>\n'
+                html += '\n<div class="title">' + f['name_cn'] + '(' + f['name'] + ')' + '</div>\n'
+                html += '\n</div>\n'
+            }
+            html += '\n</div>\n'
+            layer.open({
+                type: 1, // page 层类型
+                area: ['855px', '348px'],
+                title: '查询结果',
+                shade: 0.6, // 遮罩透明度
+                shadeClose: true, // 点击遮罩区域，关闭弹层
+                maxmin: true, // 允许全屏最小化
+                anim: 0, // 0-6 的动画形式，-1 不开启
+                content: html,
+                success: function () {
+                    $('.bangumi .item').unbind().click(function(){
+                        var bangumi_id = $(this).data('id');
+                        select_bangumi_id(bangumi_id);
+                        layer.closeAll();
+                    })
+                }
+            });
+            $('#search_bangumi').text('查询')
+        });
+    }
+
+    function select_bangumi_id(id) {
+        $('.anime-info input[name="bangumi_id"]').val(id);
+        if(confirm('是否自动补全信息')){
+            $('.anime-info input[name="year"]').val(g_bangumi_info[id]['year']);
+            $('.anime-info input[name="month"]').val(g_bangumi_info[id]['month']);
+            $('.anime-info textarea[name="desc"]').val(g_bangumi_info[id]['desc']);
+        }
+        g_bangumi_info = {};
     }
 
     layui.use('form', function () {

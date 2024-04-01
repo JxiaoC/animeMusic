@@ -40,6 +40,7 @@ def format_music_info(info):
     info['type'] = info.get('type', '其他')
     info['author'] = info.get('author', '未知')
     info['recommend'] = True if info.get('recommend', False) else False
+    info['bangumi_id'] = info.get('bangumi_id', 0)
     return info
 
 

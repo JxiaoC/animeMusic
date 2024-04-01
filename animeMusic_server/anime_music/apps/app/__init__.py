@@ -25,6 +25,7 @@ register.register_group_urls('/god', [
 register.register_group_urls('/god/api/v1', [
     ('/anime/list', god.AnimeListHeader),
     ('/anime/add', god.AnimeAddHeader),
+    ('/anime/search_bangumi', god.AnimeSearchBangumiHeader),
     ('/anime/(save|del)/([0-9a-f]{24})', god.AnimeHeader),
     ('/anime/upload/(logo|bg)/([0-9a-f]{24})', god.AnimeUploadHeader),
 

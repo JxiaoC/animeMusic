@@ -14,6 +14,7 @@ from helper import image
 from helper import tietuku
 from helper import file_server
 from helper import ftp
+from lib import bangumi
 from aliyun import oss
 from tornado import gen
 from tornado.concurrent import run_on_executor
@@ -96,6 +97,13 @@ class AnimeAddHeader(turbo.app.BaseHandler):
             'month': 0,
         })
         self.write({'code': 0, 'msg': 'ok'})
+
+
+class AnimeSearchBangumiHeader(turbo.app.BaseHandler):
+    def post(self):
+        title = self.get_argument('title', '')
+        res = bangumi.search(title)
+        self.write({'code': 0, 'msg': 'ok', 'res': res})
 
 
 class AnimeHeader(turbo.app.BaseHandler):

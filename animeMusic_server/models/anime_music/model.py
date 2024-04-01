@@ -16,6 +16,7 @@ class AnimeList(Model):
     atime: 添加时间，时间戳格式
     year: anime发行年份
     month: anime发行月份
+    bangumi_id: 对应bangumi番剧id
     """
     field = {
         'title':        (str,                  ''),
@@ -26,6 +27,7 @@ class AnimeList(Model):
         'logo':         (str,                  ''),
         'year':         (int,                   0),
         'month':        (int,                   0),
+        'bangumi_id':   (int,                   0),
         'tietukuname':  (str,                  ''),
     }
 
