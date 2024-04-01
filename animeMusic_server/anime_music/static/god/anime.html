@@ -259,6 +259,7 @@
         $('.anime-info textarea[name="desc"]').val(_anime_info['desc']);
         $('.anime-info input[name="year"]').val(_anime_info['year']);
         $('.anime-info input[name="month"]').val(_anime_info['month']);
+        $('.anime-info input[name="bangumi_id"]').val(_anime_info['bangumi_id']);
         $('.layui-upload-list.logo').html('<img class="layui-upload-img" id="upload_logo" width="300"><input class="layui-upload-file" type="file" name="file"><p id="logo_text"></p>');
         $('.layui-upload-list.bg').html('<img class="layui-upload-img" id="upload_bg" width="300"><input class="layui-upload-file" type="file" name="file"><p id="bg_text"></p>');
         $('#upload_logo').attr('src', _anime_info['logo']);
@@ -346,11 +347,13 @@
         }
         var year = $('.anime-info input[name="year"]').val();
         var month = $('.anime-info input[name="month"]').val();
-        $.post("/god/api/v1/anime/save/" + id, {title: title, desc: desc, year: year, month: month}, function (res) {
+        var bangumi_id = $('.anime-info input[name="bangumi_id"]').val();
+        $.post("/god/api/v1/anime/save/" + id, {title: title, desc: desc, year: year, month: month, bangumi_id: bangumi_id}, function (res) {
             g_anime_info[id]['title'] = title;
             g_anime_info[id]['desc'] = desc;
             g_anime_info[id]['year'] = year;
             g_anime_info[id]['month'] = month;
+            g_anime_info[id]['bangumi_id'] = bangumi_id;
             console.log(res);
         });
     }

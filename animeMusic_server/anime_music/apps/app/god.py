@@ -118,12 +118,14 @@ class AnimeHeader(turbo.app.BaseHandler):
         desc = self.get_argument('desc', '')
         year = int(self.get_argument('year', 0))
         month = int(self.get_argument('month', 0))
+        bangumi_id = int(self.get_argument('bangumi_id', 0))
 
         tb_anime.update({'_id': self.id}, {'$set': {
             'title': title,
             'desc': desc,
             'year': year,
             'month': month,
+            'bangumi_id': bangumi_id,
         }})
         self.write({'code': 0, 'msg': 'ok'})
 
